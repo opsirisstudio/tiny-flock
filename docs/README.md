@@ -8,15 +8,21 @@
 - [Persistence](architecture/persistence.md)
 - [Pedigree](architecture/pedigree.md)
 - [Genetic knowledge](architecture/genetic_knowledge.md)
+- [Personality](architecture/personality.md)
+- [Life history](architecture/life_history.md)
 
 ## Design
 
 - [Sheep genome specification](design/sheep_genome_spec.md)
 - [Founder sheep](design/founders.md)
 - [Elder and archive system](design/elder_system.md)
+- [Personality traits](design/personality_traits.md)
+- [Sheep identity](design/sheep_identity.md)
+- [Legacy system](design/legacy_system.md)
 
 ## Verification
 
 - [Milestone 1 audit](verification/milestone_1_audit.md)
 - [Godot runtime backlog](verification/godot_runtime_backlog.md)
 - [Milestone 2 static verification](verification/milestone_2_static_verification.md)
+- [Milestone 3 static verification](verification/milestone_3_static_verification.md)

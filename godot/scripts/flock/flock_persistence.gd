@@ -1,7 +1,7 @@
 class_name FlockPersistence
 extends RefCounted
 
-const SAVE_VERSION := 1
+const SAVE_VERSION := 2
 static var last_error := ""
 
 static func to_dictionary(repository: FlockRepository) -> Dictionary:
@@ -61,7 +61,11 @@ static func from_dictionary(data: Dictionary) -> FlockRepository:
 static func _sheep_to_dictionary(sheep: SheepRecord) -> Dictionary:
 	var tags: Array[int] = []
 	for tag: SheepRecord.LegacyTag in sheep.legacy_tags: tags.append(tag)
-	return {"sheep_id":sheep.sheep_id, "sheep_name":sheep.sheep_name, "sex":sheep.sex, "mother_id":sheep.mother_id, "father_id":sheep.father_id, "generation":sheep.generation, "age_stage":sheep.age_stage, "location":sheep.location, "elder_role":sheep.elder_role, "favorite":sheep.favorite, "legacy_tags":tags, "hunger":sheep.hunger, "cleanliness":sheep.cleanliness, "happiness":sheep.happiness, "bond":sheep.bond, "wool_growth":sheep.wool_growth, "genome":sheep.genome.loci.duplicate(true)}
+	var events: Array[Dictionary] = []
+	for event: SheepLifeEvent in sheep.life_events: events.append(event.to_dictionary())
+	var notes: Array[Dictionary] = []
+	for note: BreederNote in sheep.breeder_notes: notes.append(note.to_dictionary())
+	return {"sheep_id":sheep.sheep_id, "sheep_name":sheep.sheep_name, "sex":sheep.sex, "mother_id":sheep.mother_id, "father_id":sheep.father_id, "generation":sheep.generation, "age_stage":sheep.age_stage, "location":sheep.location, "elder_role":sheep.elder_role, "favorite":sheep.favorite, "legacy_tags":tags, "hunger":sheep.hunger, "cleanliness":sheep.cleanliness, "happiness":sheep.happiness, "bond":sheep.bond, "wool_growth":sheep.wool_growth, "genome":sheep.genome.loci.duplicate(true), "personality":sheep.personality.to_dictionary() if sheep.personality != null else {}, "life_events":events, "breeder_notes":notes, "next_note_number":sheep.next_note_number}
 
 static func _sheep_from_dictionary(data: Dictionary) -> SheepRecord:
 	if not data.get("genome", null) is Dictionary: return null
@@ -79,4 +83,18 @@ static func _sheep_from_dictionary(data: Dictionary) -> SheepRecord:
 	sheep.hunger = float(data.get("hunger", 100.0)); sheep.cleanliness = float(data.get("cleanliness", 100.0)); sheep.happiness = float(data.get("happiness", 100.0)); sheep.bond = float(data.get("bond", 0.0)); sheep.wool_growth = float(data.get("wool_growth", 0.0))
 	var genome_data: Dictionary = data["genome"]
 	sheep.genome = SheepGenome.new(genome_data)
+	var personality_data: Variant = data.get("personality", {})
+	if not personality_data is Dictionary or personality_data.is_empty(): return null
+	sheep.personality = PersonalityProfile.from_dictionary(personality_data)
+	var events: Variant = data.get("life_events", []); var notes: Variant = data.get("breeder_notes", [])
+	if not events is Array or not notes is Array: return null
+	for event: Variant in events:
+		if not event is Dictionary: return null
+		sheep.life_events.append(SheepLifeEvent.from_dictionary(event))
+	for note: Variant in notes:
+		if not note is Dictionary: return null
+		var restored_note := BreederNote.from_dictionary(note)
+		if restored_note.note_id.is_empty() or restored_note.text.strip_edges().is_empty(): return null
+		sheep.breeder_notes.append(restored_note)
+	sheep.next_note_number = int(data.get("next_note_number", 1))
 	return sheep if sheep.validate() else null

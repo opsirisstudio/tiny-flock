@@ -14,9 +14,9 @@ static func run() -> void:
 	assert(zero_lamb.loci == parent.loci)
 	var forced_lamb := parent.duplicate_genome()
 	manager.mutation_chance = 1.0
-	manager.apply_possible_mutation(forced_lamb, _rng(9))
+	var result := manager.apply_possible_mutation(forced_lamb, _rng(9))
 	var changes := forced_lamb.get_pair("LAV").count("l") + forced_lamb.get_pair("ROS").count("r") + forced_lamb.get_pair("STR").count("s")
-	assert(changes == 1 and forced_lamb.validate())
+	assert(changes == 1 and forced_lamb.validate() and result.did_mutate and not result.locus_id.is_empty())
 	assert(parent.get_pair("LAV") == ["L","L"] and parent.get_pair("ROS") == ["R","R"] and parent.get_pair("STR") == ["S","S"])
 
 static func _rng(seed_value: int) -> RandomNumberGenerator:

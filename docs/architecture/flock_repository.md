@@ -16,3 +16,7 @@ SheepRecord
 ```
 
 Archived sheep need no scene instance. When an active character leaves the world, persistent changes will be written back to its record. Reloading an archive record can reproduce phenotype from genome, age, and wool state.
+
+## Identity service ownership
+
+The repository remains the authoritative ID index and owner of location, favorite, elder-capacity, and genetic-knowledge invariants. It deliberately does not resolve personality or become a universal identity manager. `SheepHistoryService`, `BreederNoteService`, `BreedingHistoryService`, and `LifetimeStatisticsService` receive a repository and own their focused append/query operations; personality, bonding, and elder suitability remain pure resolvers. Persistent event/note arrays live on the flat record so archive and save ownership stay straightforward.

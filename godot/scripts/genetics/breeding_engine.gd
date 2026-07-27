@@ -3,6 +3,7 @@ extends RefCounted
 
 var rng: RandomNumberGenerator
 var mutation_manager: MutationManager
+var last_mutation_result := MutationResult.new()
 
 func _init(seed_value: int = 0, mutations_enabled: bool = false) -> void:
 	rng = RandomNumberGenerator.new()
@@ -18,6 +19,6 @@ func breed_genomes(mother: SheepGenome, father: SheepGenome) -> SheepGenome:
 		var paternal := father.get_pair(locus)
 		lamb.set_pair(locus, [maternal[rng.randi_range(0, 1)], paternal[rng.randi_range(0, 1)]])
 	assert(lamb.validate(), "Inherited lamb genome is invalid")
-	mutation_manager.apply_possible_mutation(lamb, rng)
+	last_mutation_result = mutation_manager.apply_possible_mutation(lamb, rng)
 	assert(lamb.validate(), "Mutated lamb genome is invalid")
 	return lamb
