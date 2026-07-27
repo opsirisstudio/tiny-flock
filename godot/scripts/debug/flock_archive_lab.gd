@@ -3,8 +3,10 @@ extends Control
 @onready var filter_select: OptionButton = %FilterSelect
 @onready var sheep_list: ItemList = %SheepList
 @onready var elder_count_label: Label = %ElderCount
+@onready var clock_label: Label = %ClockLabel
 @onready var details: TextEdit = %Details
 var repository := FlockRepository.new()
+var clock := GameClock.new()
 var visible_ids: Array[String] = []
 
 func _ready() -> void:
@@ -27,19 +29,33 @@ func _on_sheep_selected(index: int) -> void:
 func _on_archive_pressed() -> void:
 	var id := _selected_id()
 	if id.is_empty(): return
-	if not repository.archive_sheep(id): details.text = "ERROR: %s" % repository.last_error
+	var service := ArchiveTransitionService.new(repository)
+	if not service.archive(id, clock.get_current_time()): details.text = "ERROR: %s" % service.last_error
+	_refresh(id)
+
+func _on_restore_pressed() -> void:
+	var id := _selected_id()
+	if id.is_empty(): return
+	var service := ArchiveTransitionService.new(repository)
+	if not service.restore_to_flock(id, clock.get_current_time()): details.text = "ERROR: %s" % service.last_error
 	_refresh(id)
 
 func _on_activate_elder_pressed() -> void:
 	var id := _selected_id()
 	if id.is_empty(): return
-	if not repository.activate_elder(id): details.text = "ERROR: %s" % repository.last_error
+	var service := ArchiveTransitionService.new(repository)
+	if not service.activate_elder(id, clock.get_current_time()): details.text = "ERROR: %s" % service.last_error
 	_refresh(id)
 
 func _on_favorite_pressed() -> void:
 	var id := _selected_id(); var sheep := repository.get_sheep(id)
 	if sheep == null: return
 	repository.set_favorite(id, not sheep.favorite)
+	_refresh(id)
+
+func _on_advance_day_pressed() -> void:
+	var id := _selected_id()
+	SimulationCoordinator.new().advance_simulation(repository, clock, GameTime.MINUTES_PER_DAY)
 	_refresh(id)
 
 func _refresh(reselect_id: String = "") -> void:
@@ -50,6 +66,7 @@ func _refresh(reselect_id: String = "") -> void:
 		visible_ids.append(sheep.sheep_id)
 		sheep_list.add_item("%s%s — %s" % ["★ " if sheep.favorite else "", sheep.sheep_name, _location_name(sheep.location)])
 	elder_count_label.text = "Active elders: %d / %d" % [repository.active_elder_count(), FlockRepository.MAX_ACTIVE_ELDERS]
+	clock_label.text = clock.get_current_time().format_day_time()
 	if not reselect_id.is_empty() and reselect_id in visible_ids:
 		var index := visible_ids.find(reselect_id); sheep_list.select(index); _show_details(reselect_id)
 	elif not visible_ids.is_empty(): sheep_list.select(0); _show_details(visible_ids[0])
@@ -61,7 +78,9 @@ func _show_details(id: String) -> void:
 	var parents := PedigreeService.new(repository).get_parents(id)
 	var parent_names: Array[String] = []
 	for parent: SheepRecord in parents: parent_names.append("%s (%s)" % [parent.sheep_name, parent.sheep_id])
-	details.text = "ID: %s\nName: %s\nGeneration: %d\nAge: %s\nLocation: %s\nElder role: %s\nFavorite: %s\nParents: %s\n\nPHENOTYPE\n%s" % [sheep.sheep_id, sheep.sheep_name, sheep.generation, SheepRecord.AgeStage.keys()[sheep.age_stage], _location_name(sheep.location), SheepRecord.ElderRole.keys()[sheep.elder_role], sheep.favorite, parent_names, PhenotypeResolver.resolve(sheep.genome).to_text()]
+	var archive_line := "Archived since minute: %s" % (sheep.archived_at_game_minute if sheep.archived_at_game_minute >= 0 else "—")
+	var pregnancy_line := "Due minute: %s" % (sheep.pregnancy.due_game_minute if sheep.pregnancy != null else "—")
+	details.text = "ID: %s\nName: %s\nGeneration: %d\nAge: %s\nLocation: %s\n%s\n%s\nElder role: %s\nFavorite: %s\nParents: %s\n\nPHENOTYPE\n%s" % [sheep.sheep_id, sheep.sheep_name, sheep.generation, SheepRecord.AgeStage.keys()[sheep.age_stage], _location_name(sheep.location), archive_line, pregnancy_line, SheepRecord.ElderRole.keys()[sheep.elder_role], sheep.favorite, parent_names, PhenotypeResolver.resolve(sheep.genome).to_text()]
 
 func _selected_id() -> String:
 	var selected := sheep_list.get_selected_items()

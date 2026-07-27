@@ -11,3 +11,7 @@ The female's two-day postpartum cooldown begins at birth and is stored as an abs
 ## Care readiness (Version 4)
 
 Otherwise eligible active adults also require hunger and happiness of at least `0.40`. Failures expose `TOO_HUNGRY` or `TOO_UNHAPPY` reason codes. This is a temporary readiness gate, not illness or danger; cleanliness is not a breeding blocker and restored care immediately restores eligibility.
+
+## Archived mothers
+
+`resolve_due_pregnancy`/`resolve_all_due` reject a mother whose `location` is `BARN_ARCHIVE`, even past her due date — an archived pregnancy does not resolve. `ArchiveTransitionService` shifts `due_game_minute` (and `breeding_available_game_minute`, if the postpartum cooldown was still pending) forward by the archived duration on restore, so the pregnancy resumes with exactly the time remaining it had at the moment of archiving. See [archive transitions](archive_transitions.md).

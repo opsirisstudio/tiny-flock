@@ -58,6 +58,14 @@ func archive_sheep(sheep_id: String) -> bool:
 	sheep.location = SheepRecord.Location.BARN_ARCHIVE
 	return true
 
+func restore_to_flock(sheep_id: String) -> bool:
+	last_error = ""
+	var sheep := get_sheep(sheep_id)
+	if sheep == null: return _fail("Unknown sheep ID: %s" % sheep_id)
+	if sheep.location != SheepRecord.Location.BARN_ARCHIVE: return _fail("Only an archived sheep can be restored to the active flock.")
+	sheep.location = SheepRecord.Location.ACTIVE_FLOCK
+	return true
+
 func set_favorite(sheep_id: String, favorite: bool) -> bool:
 	var sheep := get_sheep(sheep_id)
 	if sheep == null: return _fail("Unknown sheep ID: %s" % sheep_id)

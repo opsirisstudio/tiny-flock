@@ -26,6 +26,7 @@ enum LegacyTag { FOUNDER, MUTATION_FOUNDER, NOTABLE_BREEDER }
 @export var next_note_number := 1
 @export var pregnancy: PregnancyState
 @export var breeding_available_game_minute := 0
+@export var archived_at_game_minute := -1
 @export_range(0.0, 1.0) var hunger := 1.0
 @export_range(0.0, 1.0) var cleanliness := 1.0
 @export_range(0.0, 1.0) var happiness := 1.0
@@ -34,6 +35,8 @@ enum LegacyTag { FOUNDER, MUTATION_FOUNDER, NOTABLE_BREEDER }
 
 func validate() -> bool:
 	if sheep_id.is_empty() or genome == null or not genome.validate() or generation < 0 or breeding_available_game_minute < 0:
+		return false
+	if archived_at_game_minute < -1:
 		return false
 	if sex < Sex.FEMALE or sex > Sex.MALE or age_stage < AgeStage.LAMB or age_stage > AgeStage.ELDER:
 		return false

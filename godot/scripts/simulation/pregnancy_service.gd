@@ -11,6 +11,7 @@ static func select_litter_size(roll: float) -> int:
 func resolve_due_pregnancy(mother: SheepRecord, current_time: GameTime) -> BirthResult:
 	var result := BirthResult.new(); result.mother_id = mother.sheep_id if mother != null else ""
 	if mother == null or mother.pregnancy == null: result.error = "No pregnancy to resolve."; return result
+	if mother.location == SheepRecord.Location.BARN_ARCHIVE: result.error = "Archived sheep are frozen and cannot give birth."; return result
 	if current_time.total_minutes < mother.pregnancy.due_game_minute: result.error = "Pregnancy is not due."; return result
 	var state := mother.pregnancy; var father := repository.get_sheep(state.other_parent_id)
 	if father == null: result.error = "Pregnancy references a missing other parent."; return result

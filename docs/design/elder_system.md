@@ -21,3 +21,5 @@ Roles have no behavior in this milestone. Future active elders may use role and 
 ## Barn Archive
 
 The Barn Archive is a historical catalog of retained `SheepRecord` data, not a physical simulation populated by Nodes. Archived sheep retain identity, genome, ancestry, generation, age, husbandry values, favorite state, legacy tags, and elder role. They remain permanently retrievable and can later be regenerated through phenotype and visual controllers.
+
+Age, needs, wool, and any in-progress pregnancy are frozen for the entire time a sheep sits in the archive and resume exactly where they left off on restoration — see [archive transitions](../architecture/archive_transitions.md). Restoration is not limited to elders: `restore_to_flock` returns any archived sheep to `ACTIVE_FLOCK` regardless of age stage.

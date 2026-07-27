@@ -9,7 +9,7 @@ const LOCI: Dictionary = {
 	"WBC": {"name": "Wool Base Color", "alleles": ["W", "D"], "style": "incomplete_dominance", "category": Category.WOOL_COLOR},
 	"WDL": {"name": "Wool Dilution", "alleles": ["D", "d"], "style": "recessive", "category": Category.WOOL_COLOR},
 	"WRM": {"name": "Wool Tone", "alleles": ["C", "N", "W"], "style": "additive", "category": Category.WOOL_COLOR},
-	"GRY": {"name": "Graying", "alleles": ["G", "g"], "style": "dominant_age_dependent", "category": Category.WOOL_COLOR},
+	"GRY": {"name": "Graying", "alleles": ["G", "g"], "style": "graded_age_dependent", "category": Category.WOOL_COLOR},
 	"CRL": {"name": "Wool Texture", "alleles": ["C", "c"], "style": "incomplete_dominance", "category": Category.WOOL_STRUCTURE},
 	"FLF": {"name": "Wool Volume", "alleles": ["F", "f"], "style": "incomplete_dominance", "category": Category.WOOL_STRUCTURE},
 	"LEN": {"name": "Wool Length", "alleles": ["L", "s"], "style": "incomplete_dominance", "category": Category.WOOL_STRUCTURE},

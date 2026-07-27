@@ -29,10 +29,11 @@ Tiny Flock is a private, single-player desktop game about cozy sheep husbandry, 
 - Normalized hunger, cleanliness, buffered happiness, and durable player bond with deterministic active-time decay and total archive freeze.
 - Feeding and treats with food preferences, personality-sensitive petting/grooming/washing, derived mood, repeatable care history, and care statistics.
 - Recoverable care-based wool efficiency and explicit breeding readiness gates, persisted in Save Version 4.
+- True `BARN_ARCHIVE` simulation freeze covering age stage and in-progress pregnancy (not just needs/wool), a general `restore_to_flock` path for any archived sheep, and time-aware `ArchiveTransitionService` archive/restore bookkeeping, persisted in Save Version 5.
 
 ## Open the project and debug labs
 
-When Godot 4.x becomes available, import `godot/project.godot`. The Genetics Lab is the main scene; open `scenes/debug/flock_archive_lab.tscn` directly for repository/archive controls, `scenes/debug/lifecycle_lab.tscn` for time, pregnancy, wool, and history controls, or `scenes/debug/husbandry_lab.tscn` for normalized needs and deterministic care interactions. The archive lab lists/filter sheep, shows active elder capacity and pedigree/phenotype details, and supports archive, activate-elder, and favorite actions.
+When Godot 4.x becomes available, import `godot/project.godot`. The Genetics Lab is the main scene; open `scenes/debug/flock_archive_lab.tscn` directly for repository/archive controls, `scenes/debug/lifecycle_lab.tscn` for time, pregnancy, wool, and history controls, or `scenes/debug/husbandry_lab.tscn` for normalized needs and deterministic care interactions. The archive lab lists/filter sheep, shows active elder capacity, archive/pregnancy status, and pedigree/phenotype details, and supports archive, restore, activate-elder, favorite, and advance-day actions.
 
 Runtime execution is intentionally deferred in the current environment. The future commands are:
 
@@ -47,7 +48,7 @@ See [Milestone 1 audit](docs/verification/milestone_1_audit.md) and [runtime bac
 
 - `godot/scripts/genetics/` — genome, registry, inheritance, mutation, phenotype.
 - `godot/scripts/sheep/` — persistent sheep records and founder/lamb construction.
-- `godot/scripts/simulation/` — clock, lifecycle, reproduction, wool, and focused simulation coordination.
+- `godot/scripts/simulation/` — clock, lifecycle, reproduction, wool, archive-freeze transitions, and focused simulation coordination.
 - `godot/scripts/husbandry/` — needs, food, care interactions, buffered happiness, and derived mood.
 - `godot/scripts/flock/` — repository, JSON persistence, pedigree, and genetic knowledge.
 - `godot/scenes/debug/` — Genetics and Flock/Archive developer tools.

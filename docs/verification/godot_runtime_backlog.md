@@ -53,3 +53,14 @@ All items are **RUNTIME VERIFICATION DEFERRED** until an approved Godot 4 runtim
 - [ ] Execute care-adjusted wool growth and breeding reason-code tests
 - [ ] Execute Version 4 comprehensive round trip and derived-value equality tests
 - [ ] Open `res://scenes/debug/husbandry_lab.tscn` and exercise every developer control
+
+## Post-Milestone 5 — archive freeze boundary (Save Version 5)
+
+- [ ] Parse and run `TestArchiveTransitions`
+- [ ] Verify age stage freezes while archived and resumes at the correct age after restore
+- [ ] Verify an archived pregnant sheep does not give birth past its due date, and that the due date shifts correctly on restore
+- [ ] Verify postpartum cooldown shifts only when still pending at archive time
+- [ ] Verify `FlockRepository.restore_to_flock` semantics (unknown ID, not-archived, success)
+- [ ] Verify `ARCHIVED_TO_BARN`/`RETURNED_FROM_BARN` life events are recorded exactly once per transition
+- [ ] Verify Version 5 round trip, explicit Version 4 rejection, and the load-time age cap for a sheep saved while still archived
+- [ ] Open `res://scenes/debug/flock_archive_lab.tscn` and exercise Archive, Restore, Activate Elder, Favorite, and Advance Day together on the same sheep

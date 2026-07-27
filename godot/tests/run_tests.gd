@@ -12,5 +12,6 @@ func _init() -> void:
 	TestSheepIdentity.run()
 	TestLifecycleSimulation.run()
 	TestHusbandry.run()
+	TestArchiveTransitions.run()
 	print("Tiny Flock static-prepared domain tests: PASS")
 	quit(0)

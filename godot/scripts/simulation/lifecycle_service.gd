@@ -3,15 +3,16 @@ extends RefCounted
 
 var history: SheepHistoryService
 func _init(repository: FlockRepository) -> void: history = SheepHistoryService.new(repository)
-func get_age_minutes(sheep: SheepRecord, current_time: GameTime) -> int: return maxi(0, current_time.total_minutes - sheep.birth_game_minute)
-func get_age_days(sheep: SheepRecord, current_time: GameTime) -> int: return get_age_minutes(sheep, current_time) / GameTime.MINUTES_PER_DAY
-func resolve_age_stage(sheep: SheepRecord, current_time: GameTime) -> SheepRecord.AgeStage:
+static func get_age_minutes(sheep: SheepRecord, current_time: GameTime) -> int: return maxi(0, current_time.total_minutes - sheep.birth_game_minute)
+static func get_age_days(sheep: SheepRecord, current_time: GameTime) -> int: return get_age_minutes(sheep, current_time) / GameTime.MINUTES_PER_DAY
+static func resolve_age_stage(sheep: SheepRecord, current_time: GameTime) -> SheepRecord.AgeStage:
 	var age := get_age_minutes(sheep, current_time)
 	if age < LifecycleConfig.JUVENILE_AGE_DAYS * GameTime.MINUTES_PER_DAY: return SheepRecord.AgeStage.LAMB
 	if age < LifecycleConfig.ADULT_AGE_DAYS * GameTime.MINUTES_PER_DAY: return SheepRecord.AgeStage.JUVENILE
 	if age < LifecycleConfig.ELDER_AGE_DAYS * GameTime.MINUTES_PER_DAY: return SheepRecord.AgeStage.ADULT
 	return SheepRecord.AgeStage.ELDER
 func update_age_stage(sheep: SheepRecord, current_time: GameTime) -> bool:
+	if sheep.location == SheepRecord.Location.BARN_ARCHIVE: return false
 	var target := resolve_age_stage(sheep, current_time)
 	if target == sheep.age_stage: return false
 	var transitions := [{"stage":SheepRecord.AgeStage.JUVENILE,"event":SheepLifeEvent.Type.BECAME_JUVENILE,"day":LifecycleConfig.JUVENILE_AGE_DAYS}, {"stage":SheepRecord.AgeStage.ADULT,"event":SheepLifeEvent.Type.BECAME_ADULT,"day":LifecycleConfig.ADULT_AGE_DAYS}, {"stage":SheepRecord.AgeStage.ELDER,"event":SheepLifeEvent.Type.BECAME_ELDER,"day":LifecycleConfig.ELDER_AGE_DAYS}]

@@ -2,7 +2,7 @@ class_name TestHusbandry
 extends RefCounted
 
 static func run() -> void:
-	_test_decay_archive_and_large_jump(); _test_feeding_and_history(); _test_interactions_and_personality(); _test_moods_and_buffering(); _test_wool_and_breeding(); _test_v4_round_trip()
+	_test_decay_archive_and_large_jump(); _test_feeding_and_history(); _test_interactions_and_personality(); _test_moods_and_buffering(); _test_wool_and_breeding(); _test_save_round_trip()
 static func _repo_with_sheep(id: String = "care-test") -> Array:
 	var repository := FlockRepository.new(); var sheep := SheepFactory.founders()[0]; sheep.sheep_id = id; sheep.hunger = 0.5; sheep.cleanliness = 0.2; sheep.happiness = 0.5; sheep.bond = 0.2; assert(repository.add_sheep(sheep)); return [repository, sheep]
 static func _test_decay_archive_and_large_jump() -> void:
@@ -36,5 +36,5 @@ static func _test_moods_and_buffering() -> void:
 static func _test_wool_and_breeding() -> void:
 	var values := _repo_with_sheep("gate-test"); var repository: FlockRepository = values[0]; var sheep: SheepRecord = values[1]; var wool := WoolGrowthService.new(); sheep.hunger = 1.0; sheep.cleanliness = 1.0; sheep.happiness = 1.0; assert(is_equal_approx(wool.get_wool_growth_efficiency(sheep), 1.0)); sheep.hunger = 0.0; sheep.cleanliness = 0.0; sheep.happiness = 0.0; assert(is_equal_approx(wool.get_wool_growth_efficiency(sheep), HusbandryConfig.WOOL_CARE_MIN_MULTIPLIER))
 	var eligibility := BreedingEligibilityService.new(repository); assert(eligibility.get_individual_reason(sheep, GameTime.new()) == BreedingEligibilityService.Reason.TOO_HUNGRY); sheep.hunger = 1.0; assert(eligibility.get_individual_reason(sheep, GameTime.new()) == BreedingEligibilityService.Reason.TOO_UNHAPPY); sheep.happiness = 1.0; assert(eligibility.get_individual_reason(sheep, GameTime.new()) == BreedingEligibilityService.Reason.SUCCESS)
-static func _test_v4_round_trip() -> void:
+static func _test_save_round_trip() -> void:
 	var values := _repo_with_sheep("round-trip-care"); var repository: FlockRepository = values[0]; var sheep: SheepRecord = values[1]; sheep.hunger = 0.23; sheep.cleanliness = 0.34; sheep.happiness = 0.45; sheep.bond = 0.56; var mood := MoodResolver.resolve(sheep); var efficiency := WoolGrowthService.new().get_wool_growth_efficiency(sheep); var restored := FlockPersistence.from_json(FlockPersistence.to_json(repository, GameClock.new())); assert(restored != null); var copy := restored.get_sheep(sheep.sheep_id); assert(copy.hunger == sheep.hunger and copy.cleanliness == sheep.cleanliness and copy.happiness == sheep.happiness and copy.bond == sheep.bond); assert(MoodResolver.resolve(copy) == mood and is_equal_approx(WoolGrowthService.new().get_wool_growth_efficiency(copy), efficiency))
