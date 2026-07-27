@@ -1,17 +1,39 @@
-# Godot 4+ specific ignores
+# Godot generated state and import caches
 .godot/
-.nomedia
-
-# Godot-specific ignores
 .import/
+*.translation
 export.cfg
 export_credentials.cfg
-*.tmp
 
-# Imported translations (automatically generated from CSV files)
-*.translation
-
-# Mono-specific ignores
+# Godot C#/Mono generated state
 .mono/
-data_*/
 mono_crash.*.json
+
+# Builds and temporary files
+build/
+dist/
+*.tmp
+*.temp
+*.log
+
+# Blender backups and crash recovery (keep intentional *.blend sources)
+*.blend1
+*.blend2
+*.blend@
+*.blend~
+
+# Editors and local tooling
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python tooling caches
+__pycache__/
+*.py[cod]
