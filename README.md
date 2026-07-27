@@ -2,7 +2,7 @@
 
 Tiny Flock is a private, single-player desktop game about cozy sheep husbandry, selective breeding, and permanent multi-generation bloodlines. Sheep never die, and the project has no networking, accounts, analytics, monetization, or backend services.
 
-> **CURRENT MILESTONE: Sheep Identity Prototype**
+> **CURRENT MILESTONE: Lifecycle Simulation Prototype**
 
 - **Engine:** Godot 4.x
 - **Language:** typed GDScript
@@ -22,10 +22,14 @@ Tiny Flock is a private, single-player desktop game about cozy sheep husbandry, 
 - Persistent seeded personality profiles, independent food preferences, derived bonding tendencies, and ranked elder-role affinities.
 - Append-only structured life history, derived lifetime/breeding statistics, mutation-founder provenance, and stable-ID breeder notes.
 - Version 2 identity save format and a developer Sheep Identity Lab.
+- Explicit integer game time, derived lifecycle progression, and ordered flock simulation without frame or wall-clock ticks.
+- Adult-active breeding eligibility, informational relatedness classification, seeded pregnancy/birth/litters, and postpartum cooldown.
+- Fractional time-based wool growth, archive freeze, shear readiness, repeatable shearing history, and a developer Lifecycle Lab.
+- Version 3 persistence for authoritative time, birth markers, pregnancy seeds, reproduction availability, and wool state.
 
 ## Open the project and debug labs
 
-When Godot 4.x becomes available, import `godot/project.godot`. The Genetics Lab is the main scene; open `scenes/debug/flock_archive_lab.tscn` directly for repository/archive controls. The archive lab lists/filter sheep, shows active elder capacity and pedigree/phenotype details, and supports archive, activate-elder, and favorite actions.
+When Godot 4.x becomes available, import `godot/project.godot`. The Genetics Lab is the main scene; open `scenes/debug/flock_archive_lab.tscn` directly for repository/archive controls, or `scenes/debug/lifecycle_lab.tscn` for time, pregnancy, wool, and history controls. The archive lab lists/filter sheep, shows active elder capacity and pedigree/phenotype details, and supports archive, activate-elder, and favorite actions.
 
 Runtime execution is intentionally deferred in the current environment. The future commands are:
 
@@ -40,6 +44,7 @@ See [Milestone 1 audit](docs/verification/milestone_1_audit.md) and [runtime bac
 
 - `godot/scripts/genetics/` — genome, registry, inheritance, mutation, phenotype.
 - `godot/scripts/sheep/` — persistent sheep records and founder/lamb construction.
+- `godot/scripts/simulation/` — clock, lifecycle, reproduction, wool, and focused simulation coordination.
 - `godot/scripts/flock/` — repository, JSON persistence, pedigree, and genetic knowledge.
 - `godot/scenes/debug/` — Genetics and Flock/Archive developer tools.
 - `godot/tests/` — dependency-free test suite awaiting runtime validation.
@@ -50,4 +55,4 @@ See [Milestone 1 audit](docs/verification/milestone_1_audit.md) and [runtime bac
 
 ## Deferred systems
 
-3D sheep, AI, personality-driven behavior, feeding interaction, bonding interaction, animations, life-stage progression simulation, breeding UI, shearing, wool processing, polished barn, breeder journal inference, and the farm environment are intentionally deferred. **RUNTIME VERIFICATION DEFERRED:** Godot has not parsed or executed this work; only static checks were used.
+3D sheep, AI, personality-driven behavior, feeding interaction, bonding interaction, animations, polished breeding UI, wool inventory/processing/economy, polished barn, breeder journal inference, and the farm environment are intentionally deferred. **RUNTIME VERIFICATION DEFERRED:** Godot has not parsed or executed this work; only static checks were used.

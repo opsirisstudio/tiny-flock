@@ -13,7 +13,7 @@ func _ready() -> void:
 	filter_select.add_item("Active Elder", SheepRecord.Location.ACTIVE_ELDER)
 	filter_select.add_item("Barn Archive", SheepRecord.Location.BARN_ARCHIVE)
 	for founder: SheepRecord in SheepFactory.founders(): repository.add_sheep(founder)
-	var elder := SheepFactory.create_lamb(repository.get_sheep("founder-clover"), repository.get_sheep("founder-biscuit"), BreedingEngine.new(404, false), "Debug Elder")
+	var elder := SheepFactory.create_lamb(repository.get_sheep("founder-clover"), repository.get_sheep("founder-biscuit"), BreedingEngine.new(404, false), 0, "Debug Elder")
 	elder.sheep_id = "debug-elder"; elder.age_stage = SheepRecord.AgeStage.ELDER; elder.elder_role = SheepRecord.ElderRole.STORYKEEPER
 	repository.add_sheep(elder)
 	_refresh()

@@ -37,5 +37,5 @@ static func _test_seed_behavior() -> void:
 static func _test_generation() -> void:
 	var mother := SheepRecord.new(); mother.sheep_id = "m"; mother.generation = 2; mother.genome = SheepFactory.default_genome()
 	var father := SheepRecord.new(); father.sheep_id = "f"; father.generation = 5; father.genome = SheepFactory.default_genome()
-	var lamb := SheepFactory.create_lamb(mother, father, BreedingEngine.new(2, false))
+	var lamb := SheepFactory.create_lamb(mother, father, BreedingEngine.new(2, false), 0)
 	assert(lamb.generation == 6 and lamb.mother_id == "m" and lamb.father_id == "f")
