@@ -30,7 +30,7 @@ func breed_many(count: int) -> void:
 	var sections: PackedStringArray = []
 	for _index: int in count:
 		lamb_count += 1
-		var lamb := SheepFactory.create_lamb(mother, father, engine, "Generated Lamb #%d" % lamb_count)
+		var lamb := SheepFactory.create_lamb(mother, father, engine, 0, "Generated Lamb #%d" % lamb_count)
 		var phenotype := PhenotypeResolver.resolve(lamb.genome)
 		sections.append("LAMB: %s\nParents: %s (%s) + %s (%s)\nGeneration: %d\n\nGENOTYPE\n%s\n\nPHENOTYPE\n%s" % [lamb.sheep_name, mother.sheep_name, lamb.mother_id, father.sheep_name, lamb.father_id, lamb.generation, lamb.genome.to_text(), phenotype.to_text()])
 	output.text = "\n\n==========\n\n".join(sections)

@@ -33,7 +33,7 @@ static func _test_history_notes_and_breeding() -> void:
 	var repository := FlockRepository.new(); var mother := SheepFactory.founders()[0]; var father := SheepFactory.founders()[1]
 	assert(repository.add_sheep(mother) and repository.add_sheep(father))
 	for index: int in 2:
-		var child := SheepFactory.create_lamb(mother, father, BreedingEngine.new(index, false)); child.sheep_id = "history-child-%d" % index; assert(repository.add_sheep(child))
+		var child := SheepFactory.create_lamb(mother, father, BreedingEngine.new(index, false), 0); child.sheep_id = "history-child-%d" % index; assert(repository.add_sheep(child))
 	var breeding := BreedingHistoryService.new(repository)
 	assert(breeding.get_mates(mother.sheep_id).size() == 1 and breeding.get_offspring(mother.sheep_id).size() == 2 and breeding.get_offspring_with_partner(mother.sheep_id, father.sheep_id).size() == 2 and breeding.get_breeding_count(mother.sheep_id) == 2 and breeding.get_unique_mate_count(mother.sheep_id) == 1)
 	var history := SheepHistoryService.new(repository); var event := SheepLifeEvent.new(); event.event_type = SheepLifeEvent.Type.FIRST_SHEAR; event.time_marker = 10
@@ -44,5 +44,5 @@ static func _test_history_notes_and_breeding() -> void:
 
 static func _test_mutation_founder() -> void:
 	var parents := SheepFactory.founders(); var engine := BreedingEngine.new(7, true); engine.mutation_manager.mutation_chance = 1.0
-	var mutant := SheepFactory.create_lamb(parents[0], parents[1], engine); assert(mutant.has_legacy_tag(SheepRecord.LegacyTag.MUTATION_FOUNDER))
-	var inherited := SheepFactory.create_lamb(mutant, parents[1], BreedingEngine.new(8, false)); assert(not inherited.has_legacy_tag(SheepRecord.LegacyTag.MUTATION_FOUNDER))
+	var mutant := SheepFactory.create_lamb(parents[0], parents[1], engine, 4321); assert(mutant.has_legacy_tag(SheepRecord.LegacyTag.MUTATION_FOUNDER)); assert(mutant.life_events[0].event_type == SheepLifeEvent.Type.MUTATION_DISCOVERED and mutant.life_events[0].time_marker == 4321)
+	var inherited := SheepFactory.create_lamb(mutant, parents[1], BreedingEngine.new(8, false), 4321); assert(not inherited.has_legacy_tag(SheepRecord.LegacyTag.MUTATION_FOUNDER) and inherited.life_events.is_empty())

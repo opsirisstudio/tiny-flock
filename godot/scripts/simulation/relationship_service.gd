@@ -13,10 +13,10 @@ func classify(a: SheepRecord, b: SheepRecord) -> Classification:
 	if same_mother and same_father: return Classification.FULL_SIBLING
 	if same_mother or same_father: return Classification.HALF_SIBLING
 	for ancestor: SheepRecord in pedigree.get_ancestors(a.sheep_id):
-		if ancestor.sheep_id == b.sheep_id: return Classification.PARENT_CHILD
+		if ancestor.sheep_id == b.sheep_id: return Classification.OTHER_RELATIVE
 		for other: SheepRecord in pedigree.get_ancestors(b.sheep_id):
 			if ancestor.sheep_id == other.sheep_id: return Classification.OTHER_RELATIVE
 	for ancestor: SheepRecord in pedigree.get_ancestors(b.sheep_id):
-		if ancestor.sheep_id == a.sheep_id: return Classification.PARENT_CHILD
+		if ancestor.sheep_id == a.sheep_id: return Classification.OTHER_RELATIVE
 	return Classification.UNRELATED
 func get_relationship_warning(a: SheepRecord, b: SheepRecord) -> Classification: return classify(a, b)

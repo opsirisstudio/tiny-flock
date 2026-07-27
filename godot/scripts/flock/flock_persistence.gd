@@ -5,18 +5,26 @@ const SAVE_VERSION := 3
 static var last_error := ""
 static var last_loaded_clock: GameClock
 
-static func to_dictionary(repository: FlockRepository, clock: GameClock = null) -> Dictionary:
+static func to_dictionary(repository: FlockRepository, clock: GameClock) -> Dictionary:
+	last_error = ""
+	if clock == null:
+		last_error = "Version 3 serialization requires an authoritative GameClock."
+		push_error(last_error)
+		return {}
 	var sheep_data: Array[Dictionary] = []
 	for sheep: SheepRecord in repository.all_sheep(): sheep_data.append(_sheep_to_dictionary(sheep))
 	var knowledge_data: Array[Dictionary] = []
 	for record: GeneticKnowledgeRecord in repository.all_knowledge(): knowledge_data.append(record.to_dictionary())
-	return {"save_version": SAVE_VERSION, "current_game_minute":clock.get_total_minutes() if clock != null else 0, "sheep": sheep_data, "genetic_knowledge": knowledge_data}
+	return {"save_version": SAVE_VERSION, "current_game_minute":clock.get_total_minutes(), "sheep": sheep_data, "genetic_knowledge": knowledge_data}
 
-static func to_json(repository: FlockRepository, clock: GameClock = null) -> String:
-	return JSON.stringify(to_dictionary(repository, clock), "  ", true)
+static func to_json(repository: FlockRepository, clock: GameClock) -> String:
+	var data := to_dictionary(repository, clock)
+	return "" if data.is_empty() else JSON.stringify(data, "  ", true)
 
-static func save_to_file(repository: FlockRepository, path: String, clock: GameClock = null) -> bool:
+static func save_to_file(repository: FlockRepository, path: String, clock: GameClock) -> bool:
 	last_error = ""
+	if clock == null:
+		last_error = "Version 3 serialization requires an authoritative GameClock."; push_error(last_error); return false
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		last_error = "Unable to open save path: %s" % path; push_error(last_error); return false
@@ -53,9 +61,14 @@ static func from_dictionary(data: Dictionary) -> FlockRepository:
 	for entry: Variant in sheep_entries:
 		if not entry is Dictionary:
 			last_error = "Malformed sheep entry."; push_error(last_error); return null
-		var sheep := _sheep_from_dictionary(entry)
+		var sheep := _sheep_from_dictionary(entry, last_loaded_clock.get_current_time())
 		if sheep == null or not repository.add_sheep(sheep):
 			last_error = "Invalid or duplicate sheep in save."; return null
+	for sheep: SheepRecord in repository.all_sheep():
+		if sheep.pregnancy != null:
+			var partner := repository.get_sheep(sheep.pregnancy.other_parent_id)
+			if partner == null or partner.sheep_id == sheep.sheep_id or not partner.validate():
+				last_error = "Invalid pregnancy partner reference for sheep %s." % sheep.sheep_id; push_error(last_error); return null
 	for entry: Variant in knowledge_entries:
 		if not entry is Dictionary:
 			last_error = "Malformed knowledge entry."; push_error(last_error); return null
@@ -72,7 +85,7 @@ static func _sheep_to_dictionary(sheep: SheepRecord) -> Dictionary:
 	for note: BreederNote in sheep.breeder_notes: notes.append(note.to_dictionary())
 	return {"sheep_id":sheep.sheep_id, "sheep_name":sheep.sheep_name, "sex":sheep.sex, "mother_id":sheep.mother_id, "father_id":sheep.father_id, "generation":sheep.generation, "birth_game_minute":sheep.birth_game_minute, "age_stage":sheep.age_stage, "location":sheep.location, "elder_role":sheep.elder_role, "favorite":sheep.favorite, "legacy_tags":tags, "hunger":sheep.hunger, "cleanliness":sheep.cleanliness, "happiness":sheep.happiness, "bond":sheep.bond, "wool_growth":sheep.wool_growth, "pregnancy":sheep.pregnancy.to_dictionary() if sheep.pregnancy != null else {}, "breeding_available_game_minute":sheep.breeding_available_game_minute, "genome":sheep.genome.loci.duplicate(true), "personality":sheep.personality.to_dictionary() if sheep.personality != null else {}, "life_events":events, "breeder_notes":notes, "next_note_number":sheep.next_note_number}
 
-static func _sheep_from_dictionary(data: Dictionary) -> SheepRecord:
+static func _sheep_from_dictionary(data: Dictionary, current_time: GameTime) -> SheepRecord:
 	if not data.get("genome", null) is Dictionary: return null
 	var sheep := SheepRecord.new()
 	sheep.sheep_id = str(data.get("sheep_id", "")); sheep.sheep_name = str(data.get("sheep_name", ""))
@@ -80,7 +93,8 @@ static func _sheep_from_dictionary(data: Dictionary) -> SheepRecord:
 	sheep.mother_id = str(data.get("mother_id", "")); sheep.father_id = str(data.get("father_id", "")); sheep.generation = int(data.get("generation", -1))
 	if not data.has("birth_game_minute") or not data.has("breeding_available_game_minute"): return null
 	sheep.birth_game_minute = int(data["birth_game_minute"]); sheep.breeding_available_game_minute = int(data["breeding_available_game_minute"])
-	sheep.age_stage = int(data.get("age_stage", SheepRecord.AgeStage.ADULT)) as SheepRecord.AgeStage
+	if sheep.birth_game_minute > current_time.total_minutes: return null
+	sheep.age_stage = LifecycleService.new(FlockRepository.new()).resolve_age_stage(sheep, current_time)
 	sheep.location = int(data.get("location", SheepRecord.Location.ACTIVE_FLOCK)) as SheepRecord.Location
 	sheep.elder_role = int(data.get("elder_role", SheepRecord.ElderRole.NONE)) as SheepRecord.ElderRole
 	sheep.favorite = bool(data.get("favorite", false))

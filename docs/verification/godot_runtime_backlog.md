@@ -38,3 +38,4 @@ Once Godot 4.x is available:
 - [ ] Instantiate `scenes/debug/lifecycle_lab.tscn` and exercise every control
 - [ ] Check Lifecycle Lab node references, signals, display formatting, and error paths
 - [ ] Exercise version 3 JSON/FileAccess round trips and explicit older-version rejection
+- [ ] Run Milestone 4 PR-correction fixtures: required save clock, interval wool boundaries, remote relatedness, repeat-shear statistics, mutation timestamps, derived load age, and pregnancy partner rejection

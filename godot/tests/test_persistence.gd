@@ -8,9 +8,9 @@ static func run() -> void:
 	var engine := BreedingEngine.new(77, false)
 	var lambs: Array[SheepRecord] = []
 	for index: int in 3:
-		var lamb := SheepFactory.create_lamb(founders[0], founders[1], engine, "Roundtrip %d" % index)
+		var lamb := SheepFactory.create_lamb(founders[0], founders[1], engine, 0, "Roundtrip %d" % index)
 		lamb.sheep_id = "roundtrip-%d" % index; lambs.append(lamb); assert(repository.add_sheep(lamb))
-	lambs[0].age_stage = SheepRecord.AgeStage.ELDER; lambs[0].elder_role = SheepRecord.ElderRole.NANNY
+	lambs[0].birth_game_minute = -90 * GameTime.MINUTES_PER_DAY; lambs[0].age_stage = SheepRecord.AgeStage.ELDER; lambs[0].elder_role = SheepRecord.ElderRole.NANNY
 	assert(repository.activate_elder(lambs[0].sheep_id)); assert(repository.archive_sheep(lambs[0].sheep_id))
 	lambs[1].favorite = true; lambs[1].add_legacy_tag(SheepRecord.LegacyTag.NOTABLE_BREEDER)
 	var event := SheepLifeEvent.new(); event.event_type = SheepLifeEvent.Type.FIRST_FEEDING; event.time_marker = 21; assert(SheepHistoryService.new(repository).record_event(lambs[1].sheep_id, event))
@@ -18,7 +18,7 @@ static func run() -> void:
 	var knowledge := GeneticKnowledgeRecord.new(); knowledge.sheep_id = lambs[1].sheep_id; knowledge.locus_id = "PNT"; knowledge.knowledge_state = GeneticKnowledgeRecord.State.GENOTYPED; knowledge.known_alleles = lambs[1].genome.get_pair("PNT")
 	assert(repository.set_knowledge(knowledge))
 	var before_phenotype := PhenotypeResolver.resolve(lambs[0].genome).to_text()
-	var loaded := FlockPersistence.from_json(FlockPersistence.to_json(repository))
+	var loaded := FlockPersistence.from_json(FlockPersistence.to_json(repository, GameClock.new()))
 	assert(loaded != null and loaded.count() == repository.count())
 	for original: SheepRecord in repository.all_sheep():
 		var restored := loaded.get_sheep(original.sheep_id)

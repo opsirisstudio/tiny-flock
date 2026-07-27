@@ -26,3 +26,17 @@ Save Version 3 persists current game minute, birth marker, optional pregnancy re
 ## Deferred and remaining risks
 
 Godot was not installed or executed. Parser/class-cache acceptance, scene instantiation, signals, typed enum/array behavior, JSON/FileAccess execution, and every GDScript assertion remain runtime-deferred. Static review cannot prove Godot RNG behavior across future engine-version changes; pinning the engine/version or adopting a project-owned PRNG may be considered later. A failed repository insertion partway through a litter is not transactionally rolled back, although deterministic IDs make the failure explicit. Balancing values remain provisional.
+
+## PR Review Corrections
+
+All seven automated findings were confirmed and corrected before merge:
+
+1. Version 3 serialization now requires a non-null authoritative `GameClock`; dictionary/JSON/file serialization fails explicitly instead of writing a plausible minute zero.
+2. Wool simulation now intersects the elapsed interval with the sheep's wool-eligible age interval, so aggregate jumps exclude lamb minutes and archived records remain frozen.
+3. `PARENT_CHILD` is limited to direct parent IDs; grandparents, grandchildren, shared-ancestor relations, and other remote ancestry classify as `OTHER_RELATIVE`.
+4. Lifetime `shearing_count` now counts repeatable `SHEARED` events; `FIRST_SHEAR` remains a milestone and does not inflate the count. The neighboring statistics were reviewed and no equivalent first/repeat mismatch was found.
+5. Lamb construction now requires an authoritative event minute and creates `MUTATION_DISCOVERED` with that minute immediately; inherited rare alleles still create no mutation event.
+6. Version 3 loading ignores serialized `age_stage`, rejects future birth markers, and derives the stage from the loaded clock plus birth marker before repository insertion or eligibility access.
+7. After all sheep are inserted, loading validates every pregnancy partner for existence, non-self identity, and structural validity; broken saves are rejected rather than partially returned or silently repaired.
+
+Prepared deterministic tests cover missing clocks, clock round trips, wool boundary intervals and large jumps, direct/remote relationships in both directions, repeat-shear statistics, mutation timestamps and inherited alleles, stale saved stages, and missing/self pregnancy partners. Godot runtime execution remains deferred.

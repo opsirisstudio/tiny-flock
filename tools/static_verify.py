@@ -57,6 +57,10 @@ for enum_name, expected in [("AgeStage", ["LAMB", "JUVENILE", "ADULT", "ELDER"])
 roles = re.search(r"enum ElderRole \{(.*?)\}", (GODOT / "scripts/sheep/sheep_record.gd").read_text()).group(1)
 if [item.strip() for item in roles.split(",")] != EXPECTED_ELDER_ROLES: fail("elder role identifiers changed")
 if "const SAVE_VERSION := 3" not in (GODOT / "scripts/flock/flock_persistence.gd").read_text(): fail("save version is not 3")
+persistence = (GODOT / "scripts/flock/flock_persistence.gd").read_text()
+if "clock: GameClock = null" in persistence or "clock != null else 0" in persistence: fail("Version 3 clock fallback is still present")
+if "Type.SHEARED).size()" not in (GODOT / "scripts/identity/lifetime_statistics_service.gd").read_text(): fail("shearing statistics do not count repeatable SHEARED events")
+if "advance_wool_growth_interval" not in (GODOT / "scripts/simulation/simulation_coordinator.gd").read_text(): fail("simulation is not using interval-aware wool growth")
 
 for scene in GODOT.rglob("*.tscn"):
     text = scene.read_text()

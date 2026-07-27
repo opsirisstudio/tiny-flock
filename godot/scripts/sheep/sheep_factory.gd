@@ -11,7 +11,7 @@ static func founders() -> Array[SheepRecord]:
 		_founder("founder-bean", "Bean", SheepRecord.Sex.MALE, {"PNT":["B","b"], "WBC":["D","D"], "WDL":["d","d"], "CRL":["c","c"], "PPG":["p","p"], "PPT":["M","L"], "BLD":["R","R"], "STR":["S","s"]}),
 	]
 
-static func create_lamb(mother: SheepRecord, father: SheepRecord, engine: BreedingEngine, lamb_name: String = "Generated Lamb", stable_id: String = "") -> SheepRecord:
+static func create_lamb(mother: SheepRecord, father: SheepRecord, engine: BreedingEngine, event_game_minute: int, lamb_name: String = "Generated Lamb", stable_id: String = "") -> SheepRecord:
 	assert(mother.genome != null and father.genome != null, "Parents require genomes")
 	var lamb := SheepRecord.new()
 	lamb.sheep_id = stable_id if not stable_id.is_empty() else "lamb-%d-%d-%d" % [Time.get_unix_time_from_system(), Time.get_ticks_usec(), _next_lamb_id]
@@ -28,7 +28,7 @@ static func create_lamb(mother: SheepRecord, father: SheepRecord, engine: Breedi
 	else: lamb.personality = PersonalityGenerator.generate_founder_personality(personality_rng)
 	if engine.last_mutation_result.did_mutate:
 		lamb.add_legacy_tag(SheepRecord.LegacyTag.MUTATION_FOUNDER)
-		var event := SheepLifeEvent.new(); event.event_type = SheepLifeEvent.Type.MUTATION_DISCOVERED; event.related_sheep_ids = [mother.sheep_id, father.sheep_id]; event.metadata = engine.last_mutation_result.to_dictionary(); lamb.life_events.append(event)
+		var event := SheepLifeEvent.new(); event.event_type = SheepLifeEvent.Type.MUTATION_DISCOVERED; event.time_marker = event_game_minute; event.related_sheep_ids = [mother.sheep_id, father.sheep_id]; event.metadata = engine.last_mutation_result.to_dictionary(); lamb.life_events.append(event)
 	return lamb
 
 static func default_genome(overrides: Dictionary = {}) -> SheepGenome:

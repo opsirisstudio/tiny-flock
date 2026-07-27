@@ -13,7 +13,7 @@ static func run() -> void:
 	assert(repository.set_knowledge(genotyped) and sheep.genome.loci == original)
 	var malformed := GeneticKnowledgeRecord.new(); malformed.sheep_id = "missing"; malformed.locus_id = "NOPE"; malformed.knowledge_state = GeneticKnowledgeRecord.State.GENOTYPED; malformed.known_alleles = ["x","x"]
 	assert(not repository.set_knowledge(malformed))
-	var loaded := FlockPersistence.from_json(FlockPersistence.to_json(repository))
+	var loaded := FlockPersistence.from_json(FlockPersistence.to_json(repository, GameClock.new()))
 	assert(loaded.get_knowledge(sheep.sheep_id, "WBC").knowledge_state == GeneticKnowledgeRecord.State.UNKNOWN)
 	assert(loaded.get_knowledge(sheep.sheep_id, "PDL").knowledge_state == GeneticKnowledgeRecord.State.CONFIRMED)
 	assert(loaded.get_knowledge(sheep.sheep_id, "PNT").known_alleles == ["B","b"])

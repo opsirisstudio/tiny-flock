@@ -19,7 +19,7 @@ func resolve_due_pregnancy(mother: SheepRecord, current_time: GameTime) -> Birth
 	for index: int in range(litter_size):
 		var lamb_seed := rng.randi(); var engine := BreedingEngine.new(lamb_seed, true)
 		var stable_id := "lamb-%s-%d-%d-%d" % [mother.sheep_id, state.due_game_minute, state.expected_litter_seed, index]
-		var lamb := SheepFactory.create_lamb(mother, father, engine, "Lamb %d" % (index + 1), stable_id)
+		var lamb := SheepFactory.create_lamb(mother, father, engine, current_time.total_minutes, "Lamb %d" % (index + 1), stable_id)
 		lamb.birth_game_minute = current_time.total_minutes; lamb.wool_growth = 0.0
 		var born := SheepLifeEvent.new(); born.event_type = SheepLifeEvent.Type.BORN; born.time_marker = current_time.total_minutes; born.related_sheep_ids = [mother.sheep_id, father.sheep_id]; born.metadata = {"mother_id":mother.sheep_id, "father_id":father.sheep_id, "litter_size":litter_size, "litter_index":index}; lamb.life_events.append(born)
 		if not repository.add_sheep(lamb): result.error = repository.last_error; return result
