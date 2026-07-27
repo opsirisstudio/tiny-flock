@@ -1,0 +1,71 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource path="res://scripts/debug/flock_archive_lab.gd" type="Script" id="1"]
+
+[node name="FlockArchiveLab" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+text = "Tiny Flock — Flock & Archive Lab"
+theme_override_font_sizes/font_size = 24
+
+[node name="Toolbar" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+[node name="FilterLabel" type="Label" parent="Margin/VBox/Toolbar"]
+layout_mode = 2
+text = "Location:"
+[node name="FilterSelect" type="OptionButton" parent="Margin/VBox/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+[node name="ElderCount" type="Label" parent="Margin/VBox/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Active elders: 0 / 3"
+[node name="Archive" type="Button" parent="Margin/VBox/Toolbar"]
+layout_mode = 2
+text = "Archive"
+[node name="ActivateElder" type="Button" parent="Margin/VBox/Toolbar"]
+layout_mode = 2
+text = "Activate Elder"
+[node name="Favorite" type="Button" parent="Margin/VBox/Toolbar"]
+layout_mode = 2
+text = "Toggle Favorite"
+
+[node name="Split" type="HSplitContainer" parent="Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+[node name="SheepList" type="ItemList" parent="Margin/VBox/Split"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+[node name="Details" type="TextEdit" parent="Margin/VBox/Split"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+editable = false
+
+[connection signal="item_selected" from="Margin/VBox/Toolbar/FilterSelect" to="." method="_on_filter_item_selected"]
+[connection signal="pressed" from="Margin/VBox/Toolbar/Archive" to="." method="_on_archive_pressed"]
+[connection signal="pressed" from="Margin/VBox/Toolbar/ActivateElder" to="." method="_on_activate_elder_pressed"]
+[connection signal="pressed" from="Margin/VBox/Toolbar/Favorite" to="." method="_on_favorite_pressed"]
+[connection signal="item_selected" from="Margin/VBox/Split/SheepList" to="." method="_on_sheep_selected"]

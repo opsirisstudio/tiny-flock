@@ -1,0 +1,82 @@
+class_name FlockPersistence
+extends RefCounted
+
+const SAVE_VERSION := 1
+static var last_error := ""
+
+static func to_dictionary(repository: FlockRepository) -> Dictionary:
+	var sheep_data: Array[Dictionary] = []
+	for sheep: SheepRecord in repository.all_sheep(): sheep_data.append(_sheep_to_dictionary(sheep))
+	var knowledge_data: Array[Dictionary] = []
+	for record: GeneticKnowledgeRecord in repository.all_knowledge(): knowledge_data.append(record.to_dictionary())
+	return {"save_version": SAVE_VERSION, "sheep": sheep_data, "genetic_knowledge": knowledge_data}
+
+static func to_json(repository: FlockRepository) -> String:
+	return JSON.stringify(to_dictionary(repository), "  ", true)
+
+static func save_to_file(repository: FlockRepository, path: String) -> bool:
+	last_error = ""
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		last_error = "Unable to open save path: %s" % path; push_error(last_error); return false
+	file.store_string(to_json(repository))
+	return true
+
+static func load_from_file(path: String) -> FlockRepository:
+	last_error = ""
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		last_error = "Unable to open save path: %s" % path; push_error(last_error); return null
+	return from_json(file.get_as_text())
+
+static func from_json(json_text: String) -> FlockRepository:
+	last_error = ""
+	var parsed: Variant = JSON.parse_string(json_text)
+	if not parsed is Dictionary:
+		last_error = "Save data is not a JSON object."; push_error(last_error); return null
+	return from_dictionary(parsed)
+
+static func from_dictionary(data: Dictionary) -> FlockRepository:
+	last_error = ""
+	if int(data.get("save_version", -1)) != SAVE_VERSION:
+		last_error = "Unsupported save version: %s" % data.get("save_version", "missing"); push_error(last_error); return null
+	var repository := FlockRepository.new()
+	var sheep_entries: Variant = data.get("sheep", null)
+	var knowledge_entries: Variant = data.get("genetic_knowledge", null)
+	if not sheep_entries is Array or not knowledge_entries is Array:
+		last_error = "Save is missing sheep or genetic_knowledge arrays."; push_error(last_error); return null
+	for entry: Variant in sheep_entries:
+		if not entry is Dictionary:
+			last_error = "Malformed sheep entry."; push_error(last_error); return null
+		var sheep := _sheep_from_dictionary(entry)
+		if sheep == null or not repository.add_sheep(sheep):
+			last_error = "Invalid or duplicate sheep in save."; return null
+	for entry: Variant in knowledge_entries:
+		if not entry is Dictionary:
+			last_error = "Malformed knowledge entry."; push_error(last_error); return null
+		if not repository.set_knowledge(GeneticKnowledgeRecord.from_dictionary(entry)):
+			last_error = "Invalid genetic knowledge in save."; return null
+	return repository
+
+static func _sheep_to_dictionary(sheep: SheepRecord) -> Dictionary:
+	var tags: Array[int] = []
+	for tag: SheepRecord.LegacyTag in sheep.legacy_tags: tags.append(tag)
+	return {"sheep_id":sheep.sheep_id, "sheep_name":sheep.sheep_name, "sex":sheep.sex, "mother_id":sheep.mother_id, "father_id":sheep.father_id, "generation":sheep.generation, "age_stage":sheep.age_stage, "location":sheep.location, "elder_role":sheep.elder_role, "favorite":sheep.favorite, "legacy_tags":tags, "hunger":sheep.hunger, "cleanliness":sheep.cleanliness, "happiness":sheep.happiness, "bond":sheep.bond, "wool_growth":sheep.wool_growth, "genome":sheep.genome.loci.duplicate(true)}
+
+static func _sheep_from_dictionary(data: Dictionary) -> SheepRecord:
+	if not data.get("genome", null) is Dictionary: return null
+	var sheep := SheepRecord.new()
+	sheep.sheep_id = str(data.get("sheep_id", "")); sheep.sheep_name = str(data.get("sheep_name", ""))
+	sheep.sex = int(data.get("sex", 0)) as SheepRecord.Sex
+	sheep.mother_id = str(data.get("mother_id", "")); sheep.father_id = str(data.get("father_id", "")); sheep.generation = int(data.get("generation", -1))
+	sheep.age_stage = int(data.get("age_stage", SheepRecord.AgeStage.ADULT)) as SheepRecord.AgeStage
+	sheep.location = int(data.get("location", SheepRecord.Location.ACTIVE_FLOCK)) as SheepRecord.Location
+	sheep.elder_role = int(data.get("elder_role", SheepRecord.ElderRole.NONE)) as SheepRecord.ElderRole
+	sheep.favorite = bool(data.get("favorite", false))
+	var tags: Variant = data.get("legacy_tags", [])
+	if not tags is Array: return null
+	for tag: Variant in tags: sheep.legacy_tags.append(int(tag) as SheepRecord.LegacyTag)
+	sheep.hunger = float(data.get("hunger", 100.0)); sheep.cleanliness = float(data.get("cleanliness", 100.0)); sheep.happiness = float(data.get("happiness", 100.0)); sheep.bond = float(data.get("bond", 0.0)); sheep.wool_growth = float(data.get("wool_growth", 0.0))
+	var genome_data: Dictionary = data["genome"]
+	sheep.genome = SheepGenome.new(genome_data)
+	return sheep if sheep.validate() else null
