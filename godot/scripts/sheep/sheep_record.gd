@@ -19,6 +19,10 @@ enum LegacyTag { FOUNDER, MUTATION_FOUNDER, NOTABLE_BREEDER }
 @export var favorite := false
 @export var legacy_tags: Array[LegacyTag] = []
 @export var genome: SheepGenome
+@export var personality: PersonalityProfile
+@export var life_events: Array[SheepLifeEvent] = []
+@export var breeder_notes: Array[BreederNote] = []
+@export var next_note_number := 1
 @export_range(0.0, 100.0) var hunger := 100.0
 @export_range(0.0, 100.0) var cleanliness := 100.0
 @export_range(0.0, 100.0) var happiness := 100.0
@@ -34,10 +38,14 @@ func validate() -> bool:
 		return false
 	if location == Location.ACTIVE_ELDER and age_stage != AgeStage.ELDER:
 		return false
+	if personality != null and not personality.validate(): return false
 	for tag: LegacyTag in legacy_tags:
 		if tag < LegacyTag.FOUNDER or tag > LegacyTag.NOTABLE_BREEDER:
 			return false
 	return true
+
+func remove_legacy_tag(tag: LegacyTag) -> void:
+	legacy_tags.erase(tag)
 
 func has_legacy_tag(tag: LegacyTag) -> bool:
 	return tag in legacy_tags

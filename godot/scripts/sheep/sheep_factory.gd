@@ -23,6 +23,12 @@ static func create_lamb(mother: SheepRecord, father: SheepRecord, engine: Breedi
 	lamb.generation = maxi(mother.generation, father.generation) + 1
 	lamb.age_stage = SheepRecord.AgeStage.LAMB
 	lamb.genome = engine.breed_genomes(mother.genome, father.genome)
+	var personality_rng := engine.rng
+	if mother.personality != null and father.personality != null: lamb.personality = PersonalityGenerator.generate_offspring_personality(mother.personality, father.personality, personality_rng)
+	else: lamb.personality = PersonalityGenerator.generate_founder_personality(personality_rng)
+	if engine.last_mutation_result.did_mutate:
+		lamb.add_legacy_tag(SheepRecord.LegacyTag.MUTATION_FOUNDER)
+		var event := SheepLifeEvent.new(); event.event_type = SheepLifeEvent.Type.MUTATION_DISCOVERED; event.related_sheep_ids = [mother.sheep_id, father.sheep_id]; event.metadata = engine.last_mutation_result.to_dictionary(); lamb.life_events.append(event)
 	return lamb
 
 static func default_genome(overrides: Dictionary = {}) -> SheepGenome:
@@ -45,4 +51,5 @@ static func _founder(id: String, name: String, founder_sex: int, overrides: Dict
 	sheep.add_legacy_tag(SheepRecord.LegacyTag.FOUNDER)
 	sheep.age_stage = SheepRecord.AgeStage.ADULT
 	sheep.genome = default_genome(overrides)
+	var rng := RandomNumberGenerator.new(); rng.seed = id.hash(); sheep.personality = PersonalityGenerator.generate_founder_personality(rng)
 	return sheep

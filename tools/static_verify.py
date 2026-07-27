@@ -10,6 +10,10 @@ ROOT = Path(__file__).resolve().parents[1]
 GODOT = ROOT / "godot"
 EXPECTED_LOCI = ["PNT","PDL","WBC","WDL","WRM","GRY","CRL","FLF","LEN","PPG","PPT","WPG","WPT","AMT","SIZ","BLD","LEG","FAC","EAR","ERS","HRN","HSH","LAV","ROS","STR"]
 EXPECTED_FILES = ["project.godot", "scenes/debug/genetics_lab.tscn", "scenes/debug/flock_archive_lab.tscn", "scripts/genetics/sheep_genome.gd", "scripts/flock/flock_repository.gd", "scripts/flock/flock_persistence.gd", "scripts/flock/pedigree_service.gd"]
+EXPECTED_FILES += ["scenes/debug/sheep_identity_lab.tscn", "scripts/identity/personality_profile.gd", "scripts/identity/sheep_life_event.gd"]
+EXPECTED_TRAITS = ["CALM", "SOCIAL", "SHY", "GREEDY", "CURIOUS", "INDEPENDENT", "CUDDLY", "MISCHIEVOUS", "SLEEPY", "ZOOMY"]
+EXPECTED_EVENTS = ["BORN", "FIRST_FEEDING", "FIRST_SHEAR", "FIRST_BREEDING", "OFFSPRING_BORN", "BECAME_JUVENILE", "BECAME_ADULT", "BECAME_ELDER", "ARCHIVED_TO_BARN", "RETURNED_FROM_BARN", "MARKED_FAVORITE", "UNMARKED_FAVORITE", "MUTATION_DISCOVERED", "GENETIC_TRAIT_CONFIRMED", "ASSIGNED_ELDER_ROLE", "BREEDER_NOTE_ADDED"]
+EXPECTED_ELDER_ROLES = ["NONE", "NANNY", "COMFORTER", "GROOMER", "SHEPHERD", "FORAGER", "STORYKEEPER"]
 
 def fail(message: str) -> None:
     raise AssertionError(message)
@@ -40,6 +44,15 @@ registry_block = registry.split("const LOCI: Dictionary = {", 1)[1].split("\n}",
 found_loci = re.findall(r'^\s*"([A-Z]{3})":', registry_block, re.MULTILINE)
 if found_loci != EXPECTED_LOCI: fail(f"registry mismatch: {found_loci}")
 
+resolver = (GODOT / "scripts/identity/personality_resolver.gd").read_text()
+traits = re.search(r"const TRAITS: Array\[String\] = \[(.*?)\]", resolver).group(1)
+if re.findall(r'"([A-Z_]+)"', traits) != EXPECTED_TRAITS: fail("personality trait identifiers changed")
+events = re.search(r"enum Type \{(.*?)\}", (GODOT / "scripts/identity/sheep_life_event.gd").read_text()).group(1)
+if [item.strip() for item in events.split(",")] != EXPECTED_EVENTS: fail("life event identifiers changed")
+roles = re.search(r"enum ElderRole \{(.*?)\}", (GODOT / "scripts/sheep/sheep_record.gd").read_text()).group(1)
+if [item.strip() for item in roles.split(",")] != EXPECTED_ELDER_ROLES: fail("elder role identifiers changed")
+if "const SAVE_VERSION := 2" not in (GODOT / "scripts/flock/flock_persistence.gd").read_text(): fail("save version is not 2")
+
 for scene in GODOT.rglob("*.tscn"):
     text = scene.read_text()
     handlers = re.findall(r'method="([^"]+)"', text)
@@ -53,5 +66,8 @@ for scene in GODOT.rglob("*.tscn"):
         if referenced not in unique_nodes: fail(f"missing unique node %{referenced} in {scene}")
 
 subprocess.run(["git", "diff", "--check"], cwd=ROOT, check=True)
+for document in ROOT.joinpath("docs").rglob("*.md"):
+    for target in re.findall(r"\[[^]]+\]\(([^)#]+)(?:#[^)]+)?\)", document.read_text()):
+        if "://" not in target and not (document.parent / target).resolve().exists(): fail(f"broken docs link {target} in {document}")
 print(f"STATICALLY VERIFIED: {len(scripts)} GDScript files, {len(classes)} class_name declarations, {len(EXPECTED_LOCI)} loci, and all res:// references.")
 print("RUNTIME VERIFICATION DEFERRED")

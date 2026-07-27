@@ -2,7 +2,7 @@
 
 Tiny Flock is a private, single-player desktop game about cozy sheep husbandry, selective breeding, and permanent multi-generation bloodlines. Sheep never die, and the project has no networking, accounts, analytics, monetization, or backend services.
 
-> **CURRENT MILESTONE: Persistent Flock Prototype**
+> **CURRENT MILESTONE: Sheep Identity Prototype**
 
 - **Engine:** Godot 4.x
 - **Language:** typed GDScript
@@ -19,6 +19,9 @@ Tiny Flock is a private, single-player desktop game about cozy sheep husbandry, 
 - Separate per-sheep/per-locus knowledge states: unknown, suspected, confirmed, and genotyped.
 - Developer Genetics Lab and Flock & Archive Lab scenes.
 - Dependency-free deterministic GDScript tests prepared for the future Godot runtime-validation milestone.
+- Persistent seeded personality profiles, independent food preferences, derived bonding tendencies, and ranked elder-role affinities.
+- Append-only structured life history, derived lifetime/breeding statistics, mutation-founder provenance, and stable-ID breeder notes.
+- Version 2 identity save format and a developer Sheep Identity Lab.
 
 ## Open the project and debug labs
 
@@ -47,4 +50,4 @@ See [Milestone 1 audit](docs/verification/milestone_1_audit.md) and [runtime bac
 
 ## Deferred systems
 
-3D sheep, sheep AI, elder autonomous behavior, animations, husbandry interactions, shearing, wool processing, polished Barn UI, Breeder Journal inference, and the farm environment are intentionally out of scope for this milestone.
+3D sheep, AI, personality-driven behavior, feeding interaction, bonding interaction, animations, life-stage progression simulation, breeding UI, shearing, wool processing, polished barn, breeder journal inference, and the farm environment are intentionally deferred. **RUNTIME VERIFICATION DEFERRED:** Godot has not parsed or executed this work; only static checks were used.

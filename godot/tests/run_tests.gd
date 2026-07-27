@@ -9,5 +9,6 @@ func _init() -> void:
 	TestPersistence.run()
 	TestPedigreeService.run()
 	TestGeneticKnowledge.run()
+	TestSheepIdentity.run()
 	print("Tiny Flock genetics tests: PASS")
 	quit(0)
