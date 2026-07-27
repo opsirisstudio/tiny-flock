@@ -11,10 +11,10 @@ static func founders() -> Array[SheepRecord]:
 		_founder("founder-bean", "Bean", SheepRecord.Sex.MALE, {"PNT":["B","b"], "WBC":["D","D"], "WDL":["d","d"], "CRL":["c","c"], "PPG":["p","p"], "PPT":["M","L"], "BLD":["R","R"], "STR":["S","s"]}),
 	]
 
-static func create_lamb(mother: SheepRecord, father: SheepRecord, engine: BreedingEngine, lamb_name: String = "Generated Lamb") -> SheepRecord:
+static func create_lamb(mother: SheepRecord, father: SheepRecord, engine: BreedingEngine, lamb_name: String = "Generated Lamb", stable_id: String = "") -> SheepRecord:
 	assert(mother.genome != null and father.genome != null, "Parents require genomes")
 	var lamb := SheepRecord.new()
-	lamb.sheep_id = "lamb-%d-%d-%d" % [Time.get_unix_time_from_system(), Time.get_ticks_usec(), _next_lamb_id]
+	lamb.sheep_id = stable_id if not stable_id.is_empty() else "lamb-%d-%d-%d" % [Time.get_unix_time_from_system(), Time.get_ticks_usec(), _next_lamb_id]
 	_next_lamb_id += 1
 	lamb.sheep_name = lamb_name
 	lamb.sex = SheepRecord.Sex.FEMALE if engine.rng.randi_range(0, 1) == 0 else SheepRecord.Sex.MALE
@@ -50,6 +50,7 @@ static func _founder(id: String, name: String, founder_sex: int, overrides: Dict
 	sheep.generation = 0
 	sheep.add_legacy_tag(SheepRecord.LegacyTag.FOUNDER)
 	sheep.age_stage = SheepRecord.AgeStage.ADULT
+	sheep.birth_game_minute = -LifecycleConfig.ADULT_AGE_DAYS * GameTime.MINUTES_PER_DAY
 	sheep.genome = default_genome(overrides)
 	var rng := RandomNumberGenerator.new(); rng.seed = id.hash(); sheep.personality = PersonalityGenerator.generate_founder_personality(rng)
 	return sheep

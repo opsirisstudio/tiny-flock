@@ -25,3 +25,16 @@ Once Godot 4.x is available:
 - [ ] Exercise version 2 JSON round trip and explicit version 1/unknown rejection
 - [ ] Instantiate `scenes/debug/sheep_identity_lab.tscn`, switch sheep, and add a note
 - [ ] Check Identity Lab node references, signals, formatting, and empty-state behavior
+
+## Milestone 4 — lifecycle simulation
+
+- [ ] Parse and run `TestLifecycleSimulation` and the complete test runner
+- [ ] Verify GameTime conversions and GameClock negative rejection
+- [ ] Verify exact age boundaries, one-time transitions, and 100-day jumps
+- [ ] Verify all breeding eligibility and relationship classifications
+- [ ] Verify conception/due boundaries, weighted litter boundaries, birth records, and postpartum cooldown
+- [ ] Compare seeded direct birth with version 3 save/load birth biology and stable IDs
+- [ ] Verify wool growth/clamping, archive freeze, and repeated shearing history
+- [ ] Instantiate `scenes/debug/lifecycle_lab.tscn` and exercise every control
+- [ ] Check Lifecycle Lab node references, signals, display formatting, and error paths
+- [ ] Exercise version 3 JSON/FileAccess round trips and explicit older-version rejection

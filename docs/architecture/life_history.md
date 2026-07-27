@@ -5,3 +5,7 @@ Each `SheepRecord` owns a flat array of compact `SheepLifeEvent` resources: enum
 Queries return all, type-filtered, or recent events in append order. Statistics are derived: offspring, breeding count, descendants, and generation depth come from parent IDs; shearing, archive, return, and favorite counts come from events. No duplicate counter is persisted. `FIRST_SHEAR` currently proves only the first occurrence; repeated shearing can add a general event later.
 
 `BreedingHistoryService` derives mates, offspring, offspring with a partner, breeding count, and unique mate count from authoritative ancestry. `BreederNoteService` separately owns mutable notes.
+
+## Authoritative time and Milestone 4 events
+
+`time_marker` now means total elapsed game minutes from the save's simulation epoch, never Unix or wall-clock time. Lifecycle events use the crossed boundary minute even during a large jump. `BREEDING` and `SHEARED` are repeatable; `PREGNANCY_STARTED` and `BIRTH_GIVEN` mark reproductive boundaries. No tick events are recorded.

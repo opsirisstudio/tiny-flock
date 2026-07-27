@@ -1,25 +1,26 @@
 class_name FlockPersistence
 extends RefCounted
 
-const SAVE_VERSION := 2
+const SAVE_VERSION := 3
 static var last_error := ""
+static var last_loaded_clock: GameClock
 
-static func to_dictionary(repository: FlockRepository) -> Dictionary:
+static func to_dictionary(repository: FlockRepository, clock: GameClock = null) -> Dictionary:
 	var sheep_data: Array[Dictionary] = []
 	for sheep: SheepRecord in repository.all_sheep(): sheep_data.append(_sheep_to_dictionary(sheep))
 	var knowledge_data: Array[Dictionary] = []
 	for record: GeneticKnowledgeRecord in repository.all_knowledge(): knowledge_data.append(record.to_dictionary())
-	return {"save_version": SAVE_VERSION, "sheep": sheep_data, "genetic_knowledge": knowledge_data}
+	return {"save_version": SAVE_VERSION, "current_game_minute":clock.get_total_minutes() if clock != null else 0, "sheep": sheep_data, "genetic_knowledge": knowledge_data}
 
-static func to_json(repository: FlockRepository) -> String:
-	return JSON.stringify(to_dictionary(repository), "  ", true)
+static func to_json(repository: FlockRepository, clock: GameClock = null) -> String:
+	return JSON.stringify(to_dictionary(repository, clock), "  ", true)
 
-static func save_to_file(repository: FlockRepository, path: String) -> bool:
+static func save_to_file(repository: FlockRepository, path: String, clock: GameClock = null) -> bool:
 	last_error = ""
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		last_error = "Unable to open save path: %s" % path; push_error(last_error); return false
-	file.store_string(to_json(repository))
+	file.store_string(to_json(repository, clock))
 	return true
 
 static func load_from_file(path: String) -> FlockRepository:
@@ -40,6 +41,10 @@ static func from_dictionary(data: Dictionary) -> FlockRepository:
 	last_error = ""
 	if int(data.get("save_version", -1)) != SAVE_VERSION:
 		last_error = "Unsupported save version: %s" % data.get("save_version", "missing"); push_error(last_error); return null
+	var current_game_minute := int(data.get("current_game_minute", -1))
+	if current_game_minute < 0:
+		last_error = "Save is missing valid current_game_minute."; push_error(last_error); return null
+	last_loaded_clock = GameClock.new(current_game_minute)
 	var repository := FlockRepository.new()
 	var sheep_entries: Variant = data.get("sheep", null)
 	var knowledge_entries: Variant = data.get("genetic_knowledge", null)
@@ -65,7 +70,7 @@ static func _sheep_to_dictionary(sheep: SheepRecord) -> Dictionary:
 	for event: SheepLifeEvent in sheep.life_events: events.append(event.to_dictionary())
 	var notes: Array[Dictionary] = []
 	for note: BreederNote in sheep.breeder_notes: notes.append(note.to_dictionary())
-	return {"sheep_id":sheep.sheep_id, "sheep_name":sheep.sheep_name, "sex":sheep.sex, "mother_id":sheep.mother_id, "father_id":sheep.father_id, "generation":sheep.generation, "age_stage":sheep.age_stage, "location":sheep.location, "elder_role":sheep.elder_role, "favorite":sheep.favorite, "legacy_tags":tags, "hunger":sheep.hunger, "cleanliness":sheep.cleanliness, "happiness":sheep.happiness, "bond":sheep.bond, "wool_growth":sheep.wool_growth, "genome":sheep.genome.loci.duplicate(true), "personality":sheep.personality.to_dictionary() if sheep.personality != null else {}, "life_events":events, "breeder_notes":notes, "next_note_number":sheep.next_note_number}
+	return {"sheep_id":sheep.sheep_id, "sheep_name":sheep.sheep_name, "sex":sheep.sex, "mother_id":sheep.mother_id, "father_id":sheep.father_id, "generation":sheep.generation, "birth_game_minute":sheep.birth_game_minute, "age_stage":sheep.age_stage, "location":sheep.location, "elder_role":sheep.elder_role, "favorite":sheep.favorite, "legacy_tags":tags, "hunger":sheep.hunger, "cleanliness":sheep.cleanliness, "happiness":sheep.happiness, "bond":sheep.bond, "wool_growth":sheep.wool_growth, "pregnancy":sheep.pregnancy.to_dictionary() if sheep.pregnancy != null else {}, "breeding_available_game_minute":sheep.breeding_available_game_minute, "genome":sheep.genome.loci.duplicate(true), "personality":sheep.personality.to_dictionary() if sheep.personality != null else {}, "life_events":events, "breeder_notes":notes, "next_note_number":sheep.next_note_number}
 
 static func _sheep_from_dictionary(data: Dictionary) -> SheepRecord:
 	if not data.get("genome", null) is Dictionary: return null
@@ -73,6 +78,8 @@ static func _sheep_from_dictionary(data: Dictionary) -> SheepRecord:
 	sheep.sheep_id = str(data.get("sheep_id", "")); sheep.sheep_name = str(data.get("sheep_name", ""))
 	sheep.sex = int(data.get("sex", 0)) as SheepRecord.Sex
 	sheep.mother_id = str(data.get("mother_id", "")); sheep.father_id = str(data.get("father_id", "")); sheep.generation = int(data.get("generation", -1))
+	if not data.has("birth_game_minute") or not data.has("breeding_available_game_minute"): return null
+	sheep.birth_game_minute = int(data["birth_game_minute"]); sheep.breeding_available_game_minute = int(data["breeding_available_game_minute"])
 	sheep.age_stage = int(data.get("age_stage", SheepRecord.AgeStage.ADULT)) as SheepRecord.AgeStage
 	sheep.location = int(data.get("location", SheepRecord.Location.ACTIVE_FLOCK)) as SheepRecord.Location
 	sheep.elder_role = int(data.get("elder_role", SheepRecord.ElderRole.NONE)) as SheepRecord.ElderRole
@@ -81,6 +88,11 @@ static func _sheep_from_dictionary(data: Dictionary) -> SheepRecord:
 	if not tags is Array: return null
 	for tag: Variant in tags: sheep.legacy_tags.append(int(tag) as SheepRecord.LegacyTag)
 	sheep.hunger = float(data.get("hunger", 100.0)); sheep.cleanliness = float(data.get("cleanliness", 100.0)); sheep.happiness = float(data.get("happiness", 100.0)); sheep.bond = float(data.get("bond", 0.0)); sheep.wool_growth = float(data.get("wool_growth", 0.0))
+	var pregnancy_data: Variant = data.get("pregnancy", null)
+	if not pregnancy_data is Dictionary: return null
+	if not pregnancy_data.is_empty():
+		sheep.pregnancy = PregnancyState.from_dictionary(pregnancy_data)
+		if sheep.pregnancy == null: return null
 	var genome_data: Dictionary = data["genome"]
 	sheep.genome = SheepGenome.new(genome_data)
 	var personality_data: Variant = data.get("personality", {})

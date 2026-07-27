@@ -13,6 +13,7 @@ enum LegacyTag { FOUNDER, MUTATION_FOUNDER, NOTABLE_BREEDER }
 @export var mother_id := ""
 @export var father_id := ""
 @export var generation := 0
+@export var birth_game_minute := 0
 @export var age_stage: AgeStage = AgeStage.ADULT
 @export var location: Location = Location.ACTIVE_FLOCK
 @export var elder_role: ElderRole = ElderRole.NONE
@@ -23,14 +24,16 @@ enum LegacyTag { FOUNDER, MUTATION_FOUNDER, NOTABLE_BREEDER }
 @export var life_events: Array[SheepLifeEvent] = []
 @export var breeder_notes: Array[BreederNote] = []
 @export var next_note_number := 1
+@export var pregnancy: PregnancyState
+@export var breeding_available_game_minute := 0
 @export_range(0.0, 100.0) var hunger := 100.0
 @export_range(0.0, 100.0) var cleanliness := 100.0
 @export_range(0.0, 100.0) var happiness := 100.0
 @export_range(0.0, 100.0) var bond := 0.0
-@export_range(0.0, 100.0) var wool_growth := 0.0
+@export_range(0.0, 1.0) var wool_growth := 0.0
 
 func validate() -> bool:
-	if sheep_id.is_empty() or genome == null or not genome.validate() or generation < 0:
+	if sheep_id.is_empty() or genome == null or not genome.validate() or generation < 0 or breeding_available_game_minute < 0:
 		return false
 	if sex < Sex.FEMALE or sex > Sex.MALE or age_stage < AgeStage.LAMB or age_stage > AgeStage.ELDER:
 		return false
@@ -39,6 +42,8 @@ func validate() -> bool:
 	if location == Location.ACTIVE_ELDER and age_stage != AgeStage.ELDER:
 		return false
 	if personality != null and not personality.validate(): return false
+	if pregnancy != null and not pregnancy.validate(): return false
+	if wool_growth < 0.0 or wool_growth > 1.0: return false
 	for tag: LegacyTag in legacy_tags:
 		if tag < LegacyTag.FOUNDER or tag > LegacyTag.NOTABLE_BREEDER:
 			return false
