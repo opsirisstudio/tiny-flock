@@ -26,10 +26,10 @@ enum LegacyTag { FOUNDER, MUTATION_FOUNDER, NOTABLE_BREEDER }
 @export var next_note_number := 1
 @export var pregnancy: PregnancyState
 @export var breeding_available_game_minute := 0
-@export_range(0.0, 100.0) var hunger := 100.0
-@export_range(0.0, 100.0) var cleanliness := 100.0
-@export_range(0.0, 100.0) var happiness := 100.0
-@export_range(0.0, 100.0) var bond := 0.0
+@export_range(0.0, 1.0) var hunger := 1.0
+@export_range(0.0, 1.0) var cleanliness := 1.0
+@export_range(0.0, 1.0) var happiness := 1.0
+@export_range(0.0, 1.0) var bond := 0.0
 @export_range(0.0, 1.0) var wool_growth := 0.0
 
 func validate() -> bool:
@@ -43,6 +43,7 @@ func validate() -> bool:
 		return false
 	if personality != null and not personality.validate(): return false
 	if pregnancy != null and not pregnancy.validate(): return false
+	if hunger < 0.0 or hunger > 1.0 or cleanliness < 0.0 or cleanliness > 1.0 or happiness < 0.0 or happiness > 1.0 or bond < 0.0 or bond > 1.0: return false
 	if wool_growth < 0.0 or wool_growth > 1.0: return false
 	for tag: LegacyTag in legacy_tags:
 		if tag < LegacyTag.FOUNDER or tag > LegacyTag.NOTABLE_BREEDER:

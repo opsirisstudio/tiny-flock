@@ -6,3 +6,7 @@
 
 
 Aggregate simulation treats elapsed time as a half-open interval `[old_time, new_time)`. Wool growth intersects that interval with the sheep’s wool-eligible interval beginning at the juvenile boundary. Thus an advance ending exactly at Day 7 contributes zero wool, while an advance through Day 8 contributes one day; no per-minute loop is used.
+
+## Care efficiency (Version 4)
+
+Existing growth is multiplied by a derived, non-persisted care efficiency. The normalized average of hunger, cleanliness, and happiness interpolates from `0.50` at the lowest care state to `1.0` at excellent care. Growth therefore slows temporarily but never stops; feeding, grooming, washing, and recovered happiness restore efficiency without changing wool genotype or phenotype.

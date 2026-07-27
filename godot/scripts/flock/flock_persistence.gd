@@ -1,14 +1,14 @@
 class_name FlockPersistence
 extends RefCounted
 
-const SAVE_VERSION := 3
+const SAVE_VERSION := 4
 static var last_error := ""
 static var last_loaded_clock: GameClock
 
 static func to_dictionary(repository: FlockRepository, clock: GameClock) -> Dictionary:
 	last_error = ""
 	if clock == null:
-		last_error = "Version 3 serialization requires an authoritative GameClock."
+		last_error = "Version 4 serialization requires an authoritative GameClock."
 		push_error(last_error)
 		return {}
 	var sheep_data: Array[Dictionary] = []
@@ -24,7 +24,7 @@ static func to_json(repository: FlockRepository, clock: GameClock) -> String:
 static func save_to_file(repository: FlockRepository, path: String, clock: GameClock) -> bool:
 	last_error = ""
 	if clock == null:
-		last_error = "Version 3 serialization requires an authoritative GameClock."; push_error(last_error); return false
+		last_error = "Version 4 serialization requires an authoritative GameClock."; push_error(last_error); return false
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		last_error = "Unable to open save path: %s" % path; push_error(last_error); return false
@@ -101,7 +101,8 @@ static func _sheep_from_dictionary(data: Dictionary, current_time: GameTime) -> 
 	var tags: Variant = data.get("legacy_tags", [])
 	if not tags is Array: return null
 	for tag: Variant in tags: sheep.legacy_tags.append(int(tag) as SheepRecord.LegacyTag)
-	sheep.hunger = float(data.get("hunger", 100.0)); sheep.cleanliness = float(data.get("cleanliness", 100.0)); sheep.happiness = float(data.get("happiness", 100.0)); sheep.bond = float(data.get("bond", 0.0)); sheep.wool_growth = float(data.get("wool_growth", 0.0))
+	if not data.has("hunger") or not data.has("cleanliness") or not data.has("happiness") or not data.has("bond"): return null
+	sheep.hunger = float(data["hunger"]); sheep.cleanliness = float(data["cleanliness"]); sheep.happiness = float(data["happiness"]); sheep.bond = float(data["bond"]); sheep.wool_growth = float(data.get("wool_growth", 0.0))
 	var pregnancy_data: Variant = data.get("pregnancy", null)
 	if not pregnancy_data is Dictionary: return null
 	if not pregnancy_data.is_empty():

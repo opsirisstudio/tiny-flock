@@ -6,6 +6,8 @@ func advance_simulation(repository: FlockRepository, clock: GameClock, minutes: 
 	if minutes < 0 or not clock.advance_minutes(minutes): return []
 	var current := clock.get_current_time(); var lifecycle := LifecycleService.new(repository)
 	var existing := repository.all_sheep()
+	var husbandry := HusbandrySimulationService.new()
+	for sheep: SheepRecord in existing: husbandry.advance_needs(sheep, minutes)
 	for sheep: SheepRecord in existing: lifecycle.update_age_stage(sheep, current)
 	var births := PregnancyService.new(repository).resolve_all_due(current)
 	var wool := WoolGrowthService.new()

@@ -9,3 +9,7 @@ Queries return all, type-filtered, or recent events in append order. Statistics 
 ## Authoritative time and Milestone 4 events
 
 `time_marker` now means total elapsed game minutes from the save's simulation epoch, never Unix or wall-clock time. Lifecycle events use the crossed boundary minute even during a large jump. `BREEDING` and `SHEARED` are repeatable; `PREGNANCY_STARTED` and `BIRTH_GIVEN` mark reproductive boundaries. No tick events are recorded.
+
+## Explicit care history (Version 4)
+
+Successful explicit interactions append repeatable `FED`, `PETTED`, `GROOMED`, and `WASHED` events; treat foods also append `TREAT_GIVEN`. Feeding metadata stores compact food/preference flags. The first successful feeding appends `FED` plus the existing one-time `FIRST_FEEDING`; later feeds append only `FED`. Passive need decay creates no event spam. Lifetime feeding, favorite-food, petting, grooming, washing, and treat counts are derived from this history rather than persisted counters.

@@ -7,3 +7,7 @@
 The pregnancy persists partner, conception/due minutes, and a litter seed. At or after due time, `PregnancyService` initializes local seeded RNG, selects a weighted litter, and gives each lamb its own derived seed. `SheepFactory` receives the authoritative birth minute so mutation history is correct when created, and delegates genomes to `BreedingEngine` (including its mutation stage) and personalities/preferences to `PersonalityGenerator`. Sex is a seeded 50/50 choice unrelated to genetics. Birth IDs derive from mother, due minute, pregnancy seed, and litter index, making a birth retry and test fixture stable. Successful insertion precedes pregnancy clearing; each lamb receives ancestry, generation, `LAMB`, the resolution minute as birth marker, and `BORN`, while both parents receive `OFFSPRING_BORN` and the mother receives `BIRTH_GIVEN`.
 
 The female's two-day postpartum cooldown begins at birth and is stored as an absolute `breeding_available_game_minute`. Males have no prototype cooldown. Saving and loading cannot alter litter count, sex, genome/mutation, personality, preferences, or IDs because the pregnancy seed—not process RNG state—is authoritative.
+
+## Care readiness (Version 4)
+
+Otherwise eligible active adults also require hunger and happiness of at least `0.40`. Failures expose `TOO_HUNGRY` or `TOO_UNHAPPY` reason codes. This is a temporary readiness gate, not illness or danger; cleanliness is not a breeding blocker and restored care immediately restores eligibility.
