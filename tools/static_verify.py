@@ -11,9 +11,10 @@ GODOT = ROOT / "godot"
 EXPECTED_LOCI = ["PNT","PDL","WBC","WDL","WRM","GRY","CRL","FLF","LEN","PPG","PPT","WPG","WPT","AMT","SIZ","BLD","LEG","FAC","EAR","ERS","HRN","HSH","LAV","ROS","STR"]
 EXPECTED_FILES = ["project.godot", "scenes/debug/genetics_lab.tscn", "scenes/debug/flock_archive_lab.tscn", "scripts/genetics/sheep_genome.gd", "scripts/flock/flock_repository.gd", "scripts/flock/flock_persistence.gd", "scripts/flock/pedigree_service.gd"]
 EXPECTED_FILES += ["scenes/debug/sheep_identity_lab.tscn", "scripts/identity/personality_profile.gd", "scripts/identity/sheep_life_event.gd"]
+EXPECTED_FILES += ["scenes/debug/husbandry_lab.tscn", "scripts/husbandry/husbandry_config.gd", "scripts/husbandry/husbandry_simulation_service.gd", "scripts/husbandry/feeding_service.gd", "scripts/husbandry/petting_service.gd", "scripts/husbandry/grooming_service.gd", "scripts/husbandry/washing_service.gd", "scripts/husbandry/mood_resolver.gd", "scripts/husbandry/care_interaction_result.gd"]
 EXPECTED_FILES += ["scenes/debug/lifecycle_lab.tscn", "scripts/simulation/game_time.gd", "scripts/simulation/game_clock.gd", "scripts/simulation/lifecycle_service.gd", "scripts/simulation/breeding_service.gd", "scripts/simulation/pregnancy_service.gd", "scripts/simulation/wool_growth_service.gd", "scripts/simulation/shearing_service.gd", "scripts/simulation/simulation_coordinator.gd"]
 EXPECTED_TRAITS = ["CALM", "SOCIAL", "SHY", "GREEDY", "CURIOUS", "INDEPENDENT", "CUDDLY", "MISCHIEVOUS", "SLEEPY", "ZOOMY"]
-EXPECTED_EVENTS = ["BORN", "FIRST_FEEDING", "FIRST_SHEAR", "FIRST_BREEDING", "OFFSPRING_BORN", "BECAME_JUVENILE", "BECAME_ADULT", "BECAME_ELDER", "ARCHIVED_TO_BARN", "RETURNED_FROM_BARN", "MARKED_FAVORITE", "UNMARKED_FAVORITE", "MUTATION_DISCOVERED", "GENETIC_TRAIT_CONFIRMED", "ASSIGNED_ELDER_ROLE", "BREEDER_NOTE_ADDED", "BREEDING", "SHEARED", "PREGNANCY_STARTED", "BIRTH_GIVEN"]
+EXPECTED_EVENTS = ["BORN", "FIRST_FEEDING", "FIRST_SHEAR", "FIRST_BREEDING", "OFFSPRING_BORN", "BECAME_JUVENILE", "BECAME_ADULT", "BECAME_ELDER", "ARCHIVED_TO_BARN", "RETURNED_FROM_BARN", "MARKED_FAVORITE", "UNMARKED_FAVORITE", "MUTATION_DISCOVERED", "GENETIC_TRAIT_CONFIRMED", "ASSIGNED_ELDER_ROLE", "BREEDER_NOTE_ADDED", "BREEDING", "SHEARED", "PREGNANCY_STARTED", "BIRTH_GIVEN", "FED", "PETTED", "GROOMED", "WASHED", "TREAT_GIVEN"]
 EXPECTED_ELDER_ROLES = ["NONE", "NANNY", "COMFORTER", "GROOMER", "SHEPHERD", "FORAGER", "STORYKEEPER"]
 
 def fail(message: str) -> None:
@@ -56,9 +57,13 @@ for enum_name, expected in [("AgeStage", ["LAMB", "JUVENILE", "ADULT", "ELDER"])
     if [item.strip() for item in body.split(",")] != expected: fail(f"{enum_name} identifiers changed")
 roles = re.search(r"enum ElderRole \{(.*?)\}", (GODOT / "scripts/sheep/sheep_record.gd").read_text()).group(1)
 if [item.strip() for item in roles.split(",")] != EXPECTED_ELDER_ROLES: fail("elder role identifiers changed")
-if "const SAVE_VERSION := 3" not in (GODOT / "scripts/flock/flock_persistence.gd").read_text(): fail("save version is not 3")
+if "const SAVE_VERSION := 4" not in (GODOT / "scripts/flock/flock_persistence.gd").read_text(): fail("save version is not 4")
 persistence = (GODOT / "scripts/flock/flock_persistence.gd").read_text()
-if "clock: GameClock = null" in persistence or "clock != null else 0" in persistence: fail("Version 3 clock fallback is still present")
+if "@export_range(0.0, 1.0) var hunger" not in record_text: fail("normalized husbandry ranges are not declared")
+if "advance_needs" not in (GODOT / "scripts/simulation/simulation_coordinator.gd").read_text(): fail("husbandry simulation is not coordinated")
+if "get_wool_growth_efficiency" not in (GODOT / "scripts/simulation/wool_growth_service.gd").read_text(): fail("care wool efficiency is missing")
+if "TOO_HUNGRY" not in (GODOT / "scripts/simulation/breeding_eligibility_service.gd").read_text(): fail("care breeding reasons are missing")
+if "clock: GameClock = null" in persistence or "clock != null else 0" in persistence: fail("Version 4 clock fallback is still present")
 if "Type.SHEARED).size()" not in (GODOT / "scripts/identity/lifetime_statistics_service.gd").read_text(): fail("shearing statistics do not count repeatable SHEARED events")
 if "advance_wool_growth_interval" not in (GODOT / "scripts/simulation/simulation_coordinator.gd").read_text(): fail("simulation is not using interval-aware wool growth")
 

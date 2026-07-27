@@ -39,3 +39,17 @@ Once Godot 4.x is available:
 - [ ] Check Lifecycle Lab node references, signals, display formatting, and error paths
 - [ ] Exercise version 3 JSON/FileAccess round trips and explicit older-version rejection
 - [ ] Run Milestone 4 PR-correction fixtures: required save clock, interval wool boundaries, remote relatedness, repeat-shear statistics, mutation timestamps, derived load age, and pregnancy partner rejection
+
+## Milestone 5 — husbandry, needs, bonding, and care
+
+All items are **RUNTIME VERIFICATION DEFERRED** until an approved Godot 4 runtime exists.
+
+- [ ] Parse and run deterministic need decay for 1 hour, 1 day, and 30 days
+- [ ] Verify archive freeze and no retroactive care catch-up
+- [ ] Execute feeding preference, GREEDY, CURIOUS, treat, and first-feeding history tests
+- [ ] Execute CUDDLY, SOCIAL, SHY warm-up, INDEPENDENT, lamb, and elder care tests
+- [ ] Execute grooming/washing bounds and structured failure-result tests
+- [ ] Execute mood priority and buffered happiness tests
+- [ ] Execute care-adjusted wool growth and breeding reason-code tests
+- [ ] Execute Version 4 comprehensive round trip and derived-value equality tests
+- [ ] Open `res://scenes/debug/husbandry_lab.tscn` and exercise every developer control

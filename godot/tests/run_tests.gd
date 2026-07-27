@@ -11,5 +11,6 @@ func _init() -> void:
 	TestGeneticKnowledge.run()
 	TestSheepIdentity.run()
 	TestLifecycleSimulation.run()
+	TestHusbandry.run()
 	print("Tiny Flock static-prepared domain tests: PASS")
 	quit(0)
