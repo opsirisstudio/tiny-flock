@@ -1,6 +1,16 @@
 # Godot Runtime Validation Backlog
 
-Once Godot 4.x is available:
+## Godot 4.7.1 validation status
+
+The first editor load on 2026-07-28 reached the GDScript parser and reported
+strict-typing errors in `mutation_manager.gd` and `pedigree_service.gd`.
+Those root causes have been corrected, but Godot has not yet been rerun against
+the corrections. Consequently, none of the checklist items below are marked as
+validated by that run. In particular, dependency compile failures reported for
+`breeding_engine.gd`, `sheep_factory.gd`, and `flock_archive_lab.gd` were
+downstream effects of those parser errors, not independent runtime validation.
+
+Run the following with Godot 4.x available:
 
 - [ ] Open `project.godot` without parser errors
 - [ ] Run `tests/run_tests.gd`

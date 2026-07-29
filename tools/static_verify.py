@@ -59,6 +59,10 @@ roles = re.search(r"enum ElderRole \{(.*?)\}", (GODOT / "scripts/sheep/sheep_rec
 if [item.strip() for item in roles.split(",")] != EXPECTED_ELDER_ROLES: fail("elder role identifiers changed")
 if "const SAVE_VERSION := 4" not in (GODOT / "scripts/flock/flock_persistence.gd").read_text(): fail("save version is not 4")
 persistence = (GODOT / "scripts/flock/flock_persistence.gd").read_text()
+mutation_manager = (GODOT / "scripts/genetics/mutation_manager.gd").read_text()
+pedigree_service = (GODOT / "scripts/flock/pedigree_service.gd").read_text()
+if 'var mutant: String = {"LAV":"l", "ROS":"r", "STR":"s"}[locus]' not in mutation_manager: fail("mutation allele lookup must have an explicit String type")
+if "var current: String = queue.pop_front()" not in pedigree_service: fail("pedigree descendant queue result must have an explicit String type")
 if "@export_range(0.0, 1.0) var hunger" not in record_text: fail("normalized husbandry ranges are not declared")
 if "advance_needs" not in (GODOT / "scripts/simulation/simulation_coordinator.gd").read_text(): fail("husbandry simulation is not coordinated")
 if "get_wool_growth_efficiency" not in (GODOT / "scripts/simulation/wool_growth_service.gd").read_text(): fail("care wool efficiency is missing")
@@ -84,4 +88,4 @@ for document in ROOT.joinpath("docs").rglob("*.md"):
     for target in re.findall(r"\[[^]]+\]\(([^)#]+)(?:#[^)]+)?\)", document.read_text()):
         if "://" not in target and not (document.parent / target).resolve().exists(): fail(f"broken docs link {target} in {document}")
 print(f"STATICALLY VERIFIED: {len(scripts)} GDScript files, {len(classes)} class_name declarations, {len(EXPECTED_LOCI)} loci, and all res:// references.")
-print("RUNTIME VERIFICATION DEFERRED")
+print("GODOT RUNTIME VERIFICATION REQUIRED SEPARATELY")
