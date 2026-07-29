@@ -53,7 +53,7 @@ func get_descendants(sheep_id: String) -> Array[SheepRecord]:
 	var visited: Dictionary = {sheep_id: true}
 	var queue: Array[String] = [sheep_id]
 	while not queue.is_empty():
-		var current := queue.pop_front()
+		var current: String = queue.pop_front()
 		for child: SheepRecord in get_children(current):
 			if visited.has(child.sheep_id): continue
 			visited[child.sheep_id] = true; found[child.sheep_id] = child; queue.append(child.sheep_id)
