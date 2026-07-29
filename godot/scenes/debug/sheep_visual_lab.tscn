@@ -1,0 +1,86 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/debug/sheep_visual_lab.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/sheep/sheep.tscn" id="2"]
+
+[sub_resource type="Environment" id="LabEnvironment"]
+background_mode = 1
+background_color = Color(0.6, 0.75, 0.9, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.9, 0.9, 0.9, 1)
+ambient_light_energy = 0.6
+
+[sub_resource type="PlaneMesh" id="GroundMesh"]
+size = Vector2(10, 10)
+
+[sub_resource type="StandardMaterial3D" id="GroundMaterial"]
+albedo_color = Color(0.55, 0.7, 0.4, 1)
+
+[node name="SheepVisualLab" type="Node3D"]
+script = ExtResource("1")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("LabEnvironment")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+position = Vector3(0, 3, 0)
+rotation_degrees = Vector3(-50, -30, 0)
+light_energy = 1.2
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("GroundMesh")
+surface_material_override/0 = SubResource("GroundMaterial")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 3)
+
+[node name="Sheep" parent="." instance=ExtResource("2")]
+unique_name_in_owner = true
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Margin" type="MarginContainer" parent="UI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+
+[node name="VBox" type="VBoxContainer" parent="UI/Margin"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UI/Margin/VBox"]
+layout_mode = 2
+text = "Sheep Visual Lab"
+theme_override_font_sizes/font_size = 24
+
+[node name="CurrentAnimationLabel" type="Label" parent="UI/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Current animation: (stopped)"
+
+[node name="AnimationButtons" type="VBoxContainer" parent="UI/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Controls" type="HBoxContainer" parent="UI/Margin/VBox"]
+layout_mode = 2
+
+[node name="Stop" type="Button" parent="UI/Margin/VBox/Controls"]
+layout_mode = 2
+text = "Stop"
+
+[node name="Replay" type="Button" parent="UI/Margin/VBox/Controls"]
+layout_mode = 2
+text = "Replay"
+
+[node name="AutoDemo" type="CheckButton" parent="UI/Margin/VBox/Controls"]
+layout_mode = 2
+text = "Auto-Demo"
+
+[connection signal="pressed" from="UI/Margin/VBox/Controls/Stop" to="." method="_on_stop_pressed"]
+[connection signal="pressed" from="UI/Margin/VBox/Controls/Replay" to="." method="_on_replay_pressed"]
+[connection signal="toggled" from="UI/Margin/VBox/Controls/AutoDemo" to="." method="_on_auto_demo_toggled"]

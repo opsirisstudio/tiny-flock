@@ -1,0 +1,32 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/sheep_visuals/sheep_visual_controller.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/sheep_visuals/sheep_animation_controller.gd" id="2"]
+[ext_resource type="PackedScene" path="res://assets/models/sheep/base/sheep_-_animated_low_poly.glb" id="3"]
+
+[sub_resource type="BoxShape3D" id="BodyBox"]
+size = Vector3(0.75, 1.2, 1.45)
+
+[sub_resource type="BoxShape3D" id="InteractionBox"]
+size = Vector3(0.95, 1.5, 1.8)
+
+[node name="Sheep" type="Node3D"]
+script = ExtResource("1")
+
+[node name="VisualRoot" type="Node3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2")
+
+[node name="SheepModel" parent="VisualRoot" instance=ExtResource("3")]
+
+[node name="BodyCollision" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BodyCollision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.56, 0.1)
+shape = SubResource("BodyBox")
+
+[node name="InteractionArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.56, 0.1)
+shape = SubResource("InteractionBox")
